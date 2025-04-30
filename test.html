@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Финансы Домохозяйства</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+    .container { max-width: 900px; margin: auto; padding: 20px; }
+    nav { display: flex; gap: 10px; margin-bottom: 20px; }
+    button { padding: 10px 15px; border: none; background: #007bff; color: white; border-radius: 6px; cursor: pointer; }
+    button.active { background: #0056b3; }
+    section { display: none; }
+    section.active { display: block; }
+    .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <button class="tab-btn active" data-tab="summary">Сводка</button>
+      <button class="tab-btn" data-tab="input">Ввод данных</button>
+      <button class="tab-btn" data-tab="analytics">Аналитика</button>
+    </nav>
+
+    <section id="summary" class="active">
+      <div class="card">
+        <h2>Баланс</h2>
+        <p>Текущий баланс: 25,000 ₽</p>
+        <h3>Последние операции</h3>
+        <ul>
+          <li>Доход: Зарплата +50,000 ₽</li>
+          <li>Расход: Аренда -20,000 ₽</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="input">
+      <div class="card">
+        <h2>Добавить операцию</h2>
+        <form>
+          <input type="text" placeholder="Категория (например, зарплата)" />
+          <input type="number" placeholder="Сумма" />
+          <select>
+            <option value="income">Доход</option>
+            <option value="expense">Расход</option>
+          </select>
+          <button type="submit">Сохранить</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="analytics">
+      <div class="card">
+        <h2>Аналитика (заглушка)</h2>
+        <p>Здесь будут графики: круговая диаграмма и гистограмма</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('section');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        sections.forEach(sec => sec.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
