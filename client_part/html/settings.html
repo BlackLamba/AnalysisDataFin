@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Настройки — Finomic</title>
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2 class="logo">Finomic</h2>
+      <nav>
+        <ul>
+          <li>Сводка</li>
+          <li>Аналитика</li>
+          <li>Операции</li>
+          <li class="active">Настройки</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Настройки</h1>
+      </header>
+
+      <section class="form-section">
+        <form class="settings-form">
+          <label>
+            Тема оформления:
+            <select>
+              <option value="dark" selected>Тёмная</option>
+              <option value="light">Светлая</option>
+            </select>
+          </label>
+
+          <label>
+            Валюта:
+            <select>
+              <option value="RUB" selected>₽ (Рубль)</option>
+              <option value="USD">$ (Доллар)</option>
+              <option value="EUR">€ (Евро)</option>
+            </select>
+          </label>
+
+          <label>
+            Язык интерфейса:
+            <select>
+              <option value="ru" selected>Русский</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+
+          <button type="submit">Сохранить</button>
+        </form>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #333" />
+
+        <button style="background:#ef4444" onclick="resetData()">Сбросить все данные</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="../dynamic/navHighlight.js"></script>
+  <script>
+    function resetData() {
+      if (confirm("Вы уверены, что хотите сбросить все данные? Это действие необратимо.")) {
+        // заглушка
+        alert("Данные были бы удалены — но бэкенда пока нет 🙂");
+      }
+    }
+  </script>
+</body>
+</html>

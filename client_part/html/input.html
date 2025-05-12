@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ввод данных — Finomic</title>
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2 class="logo">Finomic</h2>
+      <nav>
+        <ul>
+          <li>Сводка</li>
+          <li>Аналитика</li>
+          <li class="active">Операции</li>
+          <li>Настройки</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Добавить операцию</h1>
+      </header>
+
+      <section class="form-section">
+        <form class="transaction-form">
+          <label>
+            Сумма (₽):
+            <input type="number" placeholder="Введите сумму" required />
+          </label>
+
+          <label>
+            Категория:
+            <select required>
+              <option value="">Выберите категорию</option>
+              <option value="income">Доход</option>
+              <option value="expense">Расход</option>
+            </select>
+          </label>
+
+          <label>
+            Дата:
+            <input type="date" required />
+          </label>
+
+          <label>
+            Комментарий:
+            <input type="text" placeholder="Например, зарплата или еда" />
+          </label>
+
+          <button type="submit">Добавить</button>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="../dynamic/navHighlight.js"></script>
+</body>
+</html>
