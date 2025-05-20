@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finomic Dashboard</title>
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2 class="logo">Finomic</h2>
+      <nav>
+        <ul>
+          <li class="active">Сводка</li>
+          <li>Аналитика</li>
+          <li>Операции</li>
+          <li>Настройки</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <header class="topbar">
+        <h1>Финансовая панель</h1>
+      </header>
+
+      <section class="cards">
+        <div class="card balance">
+          <h3>Баланс</h3>
+          <p>₽ 52,500</p>
+        </div>
+        <div class="card income">
+          <h3>Доходы</h3>
+          <p>₽ 75,000</p>
+        </div>
+        <div class="card expenses">
+          <h3>Расходы</h3>
+          <p>₽ 22,500</p>
+        </div>
+      </section>
+
+      <section class="graph">
+        <h2>График расходов</h2>
+        <canvas id="expensesChart"></canvas>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../dynamic/expensesChart.js"></script>
+  <script src="../dynamic/navHighlight.js"></script>
+</body>
+</html>

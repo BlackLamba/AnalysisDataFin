@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Аналитика — Finomic</title>
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2 class="logo">Finomic</h2>
+      <nav>
+        <ul>
+          <li>Сводка</li>
+          <li class="active">Аналитика</li>
+          <li>Операции</li>
+          <li>Настройки</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Аналитика</h1>
+      </header>
+
+      <section class="filters">
+        <form class="filter-form">
+          <label>
+            От:
+            <input type="date" />
+          </label>
+
+          <label>
+            До:
+            <input type="date" />
+          </label>
+
+          <label>
+            Категория:
+            <select>
+              <option value="">Все</option>
+              <option value="income">Доход</option>
+              <option value="expense">Расход</option>
+            </select>
+          </label>
+
+          <button type="submit">Применить</button>
+        </form>
+      </section>
+
+      <section class="graph">
+        <h2>Доходы и расходы по дням</h2>
+        <canvas id="lineChart"></canvas>
+      </section>
+
+      <section class="graph">
+        <h2>Распределение по категориям</h2>
+        <canvas id="pieChart"></canvas>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../dynamic/analyticsCharts.js"></script>
+  <script src="../dynamic/navHighlight.js"></script>
+
+</body>
+</html>
