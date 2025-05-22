@@ -5,7 +5,7 @@ from app.models.transactions import Transaction
 from app.models.bank_account import BankAccount
 from app.models.budget import Budget
 from app.models.savings_goal import SavingsGoal
-from app.models.reccuring_payment import RecurringPayment
+from app.models.recurring_payment import RecurringPayment
 
 __all__ = [
     "Base",

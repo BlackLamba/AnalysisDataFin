@@ -1,35 +1,39 @@
-from app.models import Transaction
-from app.repositories.transaction_repository import TransactionRepository
-from app.services.base_service import BaseService
-from app.schemas.transaction_schema import TransactionCreate, TransactionUpdate
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import date
-from typing import Optional
+from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError
+from app.models.transactions import Transaction as TransactionModel
+from app.schemas.transaction_schema import TransactionCreate
+import uuid
+from datetime import datetime
 
-class TransactionService(BaseService):
+
+class TransactionService:
     def __init__(self, db: AsyncSession):
-        super().__init__(TransactionRepository(Transaction, db))
+        self.db = db
 
-    async def get_multi_by_user(
-        self,
-        *,
-        user_id: int,
-        skip: int = 0,
-        limit: int = 100,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None
-    ):
-        return await self.repository.get_multi_by_user(
-            user_id=user_id,
-            skip=skip,
-            limit=limit,
-            start_date=start_date,
-            end_date=end_date
-        )
+    async def create(self, transaction_data: TransactionCreate) -> TransactionModel:
+        try:
+            new_transaction = TransactionModel(
+                TransactionID=uuid.uuid4(),
+                UserID=transaction_data.user_id,
+                CategoryID=transaction_data.category_id,
+                Amount=transaction_data.amount,
+                Description=transaction_data.description,
+                TransactionDate=transaction_data.transaction_date or datetime.utcnow(),
+            )
+            self.db.add(new_transaction)
+            await self.db.commit()
+            await self.db.refresh(new_transaction)
+            return new_transaction
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            raise e
 
-    async def get_by_category(self, *, category_id: int, skip: int = 0, limit: int = 100):
-        return await self.repository.get_by_category(
-            category_id=category_id,
-            skip=skip,
-            limit=limit
-        )
+    async def get(self, transaction_id: str) -> TransactionModel | None:
+        try:
+            result = await self.db.execute(
+                select(TransactionModel).where(TransactionModel.TransactionID == transaction_id)
+            )
+            return result.scalar_one_or_none()
+        except SQLAlchemyError as e:
+            raise e

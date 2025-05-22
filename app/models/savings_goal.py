@@ -7,7 +7,7 @@ import uuid
 
 
 class SavingsGoal(Base):
-    __tablename__ = "savingsgoals"
+    __tablename__ = "savings_goals"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     UserID = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)

@@ -4,7 +4,7 @@ from app.models.base import Base
 
 
 class RecurringPayment(Base):
-    __tablename__ = "recurringpayments"
+    __tablename__ = "recurring_payments"
 
     PaymentID = Column(Integer, primary_key=True, autoincrement=True)
     UserID = Column(Integer, nullable=False)
@@ -19,6 +19,6 @@ class RecurringPayment(Base):
     __table_args__ = (
         ForeignKeyConstraint(['UserID'], ['users.UserID'], ondelete='CASCADE'),
         ForeignKeyConstraint(['CategoryID'], ['categories.CategoryID'], ondelete='SET NULL'),
-        ForeignKeyConstraint(['AccountID'], ['bankaccounts.AccountID'], ondelete='SET NULL'),
+        ForeignKeyConstraint(['AccountID'], ['bank_accounts.AccountID'], ondelete='SET NULL'),
         CheckConstraint("Frequency IN ('daily', 'weekly', 'monthly', 'yearly')", name='check_frequency')
     )

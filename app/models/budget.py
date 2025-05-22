@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Numeric, Boolean, ForeignKey, UniqueConstraint, DateTime
+from sqlalchemy import Column, String, Numeric, Boolean, ForeignKey, UniqueConstraint, Date
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.models.base import Base
@@ -13,8 +13,8 @@ class Budget(Base):
     CategoryID = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
     Amount = Column(Numeric(15, 2), nullable=False)
     Period = Column(String(5), nullable=False)  # day, week, month, year
-    StartDate = Column(DateTime, nullable=False)
-    EndDate = Column(DateTime)
+    StartDate = Column(Date, nullable=False)
+    EndDate = Column(Date)
 
     user = relationship("User", back_populates="budgets")
     category = relationship("Category", back_populates="budgets")

@@ -1,19 +1,28 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from app.schemas.base_schema import BaseSchema, IDSchema
+from uuid import UUID
+from enum import Enum
 
-class CategoryBase(BaseSchema):
+
+class CategoryType(str, Enum):
+    INCOME = "income"
+    EXPENSE = "expense"
+
+
+class CategoryBase(BaseModel):
     name: str = Field(..., max_length=50)
-    type: str = Field(..., regex="^(income|expense)$")
+    type: CategoryType
     category: str = Field(..., max_length=50)  # Основная категория
-    parent_id: Optional[str] = None
+    parent_id: Optional[UUID] = None
+
 
 class CategoryCreate(CategoryBase):
     pass
 
-class CategoryUpdate(BaseModel):
-    name: Optional[str] = Field(None, max_length=50)
-    type: Optional[str] = Field(None, regex="^(income|expense)$")
 
-class Category(IDSchema, CategoryBase):
-    pass
+class Category(CategoryBase):
+    category_id: UUID
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )

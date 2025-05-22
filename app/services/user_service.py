@@ -1,22 +1,42 @@
-from app.models import User
-from app.repositories.user_repository import UserRepository
-from app.services.base_service import BaseService
-from app.schemas.user_schema import UserCreate, UserUpdate
-from app.core.security import get_password_hash
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from app.models.user import User as UserModel
+from app.schemas.user_schema import UserCreate
+import uuid
 
-class UserService(BaseService):
+
+class UserService:
     def __init__(self, db: AsyncSession):
-        super().__init__(UserRepository(User, db))
+        self.db = db
 
-    async def create(self, *, obj_in: UserCreate):
-        # Хешируем пароль перед созданием
-        hashed_password = get_password_hash(obj_in.password)
-        user_data = obj_in.model_dump(exclude={"password"})
-        return await super().create(obj_in={**user_data, "hashed_password": hashed_password})
+    async def create(self, user_data: UserCreate) -> UserModel:
+        try:
+            new_user = UserModel(
+                UserID=uuid.uuid4(),
+                LastName=user_data.last_name,
+                FirstName=user_data.first_name,
+                MiddleName=user_data.middle_name,
+                PassportNumber=user_data.passport_number,
+                Email=user_data.email,
+                hashed_password=user_data.hashed_password
+            )
+            self.db.add(new_user)
+            await self.db.commit()
+            await self.db.refresh(new_user)
+            return new_user
+        except IntegrityError:
+            await self.db.rollback()
+            raise ValueError("User with this email already exists.")
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            raise e
 
-    async def authenticate(self, *, email: str, password: str):
-        return await self.repository.authenticate(email=email, password=password)
-
-    async def get_by_email(self, *, email: str):
-        return await self.repository.get_by_email(email=email)
+    async def get(self, user_id: str) -> UserModel | None:
+        try:
+            result = await self.db.execute(
+                select(UserModel).where(UserModel.UserID == user_id)
+            )
+            return result.scalar_one_or_none()
+        except SQLAlchemyError as e:
+            raise e

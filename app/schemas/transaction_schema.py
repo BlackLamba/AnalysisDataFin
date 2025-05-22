@@ -1,25 +1,20 @@
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-
-from pydantic import BaseModel, Field
+from uuid import UUID
 from datetime import datetime
-from app.schemas.base_schema import BaseSchema, IDSchema
 
-class TransactionBase(BaseSchema):
-    amount: float = Field(..., gt=0)
+
+class TransactionCreate(BaseModel):
+    user_id: int
+    category_id: int
+    amount: float
     description: Optional[str] = Field(None, max_length=255)
-    transaction_date: datetime = Field(default_factory=datetime.utcnow)
+    transaction_date: Optional[datetime] = None  # можно не передавать
 
-class TransactionCreate(TransactionBase):
-    user_id: str
-    category_id: Optional[str] = None
-    account_id: str
 
-class TransactionUpdate(BaseModel):
-    amount: Optional[float] = Field(None, gt=0)
-    description: Optional[str] = Field(None, max_length=255)
-    category_id: Optional[str] = None
+class Transaction(TransactionCreate):
+    transaction_id: UUID
 
-class Transaction(IDSchema, TransactionBase):
-    user_id: str
-    category_id: Optional[str]
-    account_id: str
+    model_config = ConfigDict(
+        from_attributes=True
+    )

@@ -6,7 +6,7 @@ import uuid
 
 
 class BankAccount(Base):
-    __tablename__ = "bankaccounts"
+    __tablename__ = "bank_accounts"
 
     AccountID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     UserID = Column(UUID(as_uuid=True), ForeignKey("users.UserID"), nullable=False)
@@ -22,5 +22,5 @@ class BankAccount(Base):
     recurring_payments = relationship("RecurringPayment", back_populates="account")
 
     __table_args__ = (
-        UniqueConstraint('user_id', 'account_number', name='unique_user_account'),
+        UniqueConstraint("UserID", "AccountNumber", name="unique_user_account"),
     )

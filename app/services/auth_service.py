@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional
 
 from fastapi import HTTPException, status
@@ -9,12 +9,12 @@ from app.core.config import settings
 from app.core.security import (
     create_access_token,
     verify_password,
-    get_password_hash, decode_token
+    decode_token
 )
 from app.schemas.token import TokenResponse, TokenData
-from app.schemas.user_schema import UserLogin
 from app.services.user_service import UserService
 from app.models.user import User
+
 
 class AuthService:
     def __init__(self, db: AsyncSession):
@@ -26,17 +26,12 @@ class AuthService:
 
     async def authenticate_user(self, email: str, password: str) -> Optional[User]:
         user = await self.user_service.get_by_email(email=email)
-        if not user:
-            return None
-        if not verify_password(password, user.hashed_password):
+        if not user or not verify_password(password, user.hashed_password):
             return None
         return user
 
-    async def login(self, user_login: UserLogin) -> TokenResponse:
-        user = await self.authenticate_user(
-            email=user_login.email,
-            password=user_login.password
-        )
+    async def login(self, email: str, password: str) -> TokenResponse:
+        user = await self.authenticate_user(email=email, password=password)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -46,7 +41,7 @@ class AuthService:
 
         access_token_expires = timedelta(minutes=self.access_token_expire_minutes)
         access_token = create_access_token(
-            data={"sub": user.email, "user_id": str(user.id)},
+            data={"sub": user.email, "user_id": str(user.UserID)},
             expires_delta=access_token_expires,
             secret_key=self.secret_key,
             algorithm=self.algorithm
@@ -81,7 +76,7 @@ class AuthService:
         user = await self.get_current_user(token)
         access_token_expires = timedelta(minutes=self.access_token_expire_minutes)
         access_token = create_access_token(
-            data={"sub": user.email, "user_id": str(user.id)},
+            data={"sub": user.email, "user_id": str(user.UserID)},
             expires_delta=access_token_expires,
             secret_key=self.secret_key,
             algorithm=self.algorithm

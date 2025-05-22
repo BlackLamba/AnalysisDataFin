@@ -1,13 +1,13 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.savings_goal_schema import SavingsGoalCreate, SavingsGoalOut
+from app.schemas.savings_goal_schema import SavingsGoalCreate, SavingsGoal
 from app.services.savings_goal_service import SavingsGoalService
 from app.db.session import get_db
 from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/goals", tags=["goals"]).router
 
-@router.post("/", response_model=SavingsGoalOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=SavingsGoal, status_code=status.HTTP_201_CREATED)
 async def create_goal(
     goal_data: SavingsGoalCreate,
     db: AsyncSession = Depends(get_db)
@@ -15,7 +15,7 @@ async def create_goal(
     service = SavingsGoalService(db)
     return await service.create(goal_data=goal_data)
 
-@router.get("/{goal_id}", response_model=SavingsGoalOut)
+@router.get("/{goal_id}", response_model=SavingsGoal)
 async def read_goal(
     goal_id: str,
     db: AsyncSession = Depends(get_db)

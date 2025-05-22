@@ -1,28 +1,30 @@
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from datetime import datetime
+from enum import Enum
 
-from pydantic import BaseModel, Field
-from datetime import date
-from app.schemas.base_schema import BaseSchema, IDSchema
 
-class RecurringPaymentBase(BaseSchema):
+class FrequencyEnum(str, Enum):
+    daily = "daily"
+    weekly = "weekly"
+    monthly = "monthly"
+    yearly = "yearly"
+
+
+class RecurringPaymentCreate(BaseModel):
+    user_id: int
+    category_id: Optional[int] = None
+    account_id: Optional[int] = None
     name: str = Field(..., max_length=100)
-    amount: float = Field(..., gt=0)
-    frequency: str = Field(..., regex="^(daily|weekly|monthly|yearly)$")
-    start_date: date
-    end_date: Optional[date] = None
+    amount: float
+    frequency: FrequencyEnum
+    start_date: datetime
+    end_date: Optional[datetime] = None
 
-class RecurringPaymentCreate(RecurringPaymentBase):
-    user_id: str
-    category_id: Optional[str] = None
-    account_id: Optional[str] = None
 
-class RecurringPaymentUpdate(BaseModel):
-    name: Optional[str] = Field(None, max_length=100)
-    amount: Optional[float] = Field(None, gt=0)
-    frequency: Optional[str] = Field(None, regex="^(daily|weekly|monthly|yearly)$")
-    end_date: Optional[date] = None
+class RecurringPayment(RecurringPaymentCreate):
+    payment_id: int
 
-class RecurringPayment(IDSchema, RecurringPaymentBase):
-    user_id: str
-    category_id: Optional[str]
-    account_id: Optional[str]
+    model_config = ConfigDict(
+        from_attributes=True
+    )
