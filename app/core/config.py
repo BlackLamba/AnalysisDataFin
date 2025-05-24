@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # Основные настройки
     PROJECT_NAME: str = "Finance Tracker API"
     VERSION: str = "1.0.0"
-    DEBUG: bool = False
+    DEBUG: bool = True
     ENVIRONMENT: str = "production"
     API_PREFIX: str = "/api/v1"
 

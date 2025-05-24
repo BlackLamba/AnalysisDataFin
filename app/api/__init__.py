@@ -5,7 +5,7 @@ from app.api.v1 import router as v1_router
 api_router = APIRouter()
 
 # Подключаем все версии API
-api_router.include_router(v1_router, prefix="/v1")
+api_router.include_router(v1_router)
 
 # Можно добавить health-check endpoint
 @api_router.get("/health")

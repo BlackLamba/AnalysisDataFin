@@ -10,7 +10,7 @@ class SavingsGoal(Base):
     __tablename__ = "savings_goals"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    UserID = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    UserID = Column(UUID(as_uuid=True), ForeignKey("users.UserID"), nullable=False)
     Name = Column(String(100), nullable=False)
     TargetAmount = Column(Numeric(15, 2), nullable=False)
     CurrentAmount = Column(Numeric(15, 2), server_default="0")

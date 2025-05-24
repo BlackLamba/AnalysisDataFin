@@ -9,8 +9,8 @@ class Budget(Base):
     __tablename__ = "budgets"
 
     BudgetID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    UserID = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    CategoryID = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
+    UserID = Column(UUID(as_uuid=True), ForeignKey("users.UserID"), nullable=False)
+    CategoryID = Column(UUID(as_uuid=True), ForeignKey("categories.CategoryID"), nullable=False)
     Amount = Column(Numeric(15, 2), nullable=False)
     Period = Column(String(5), nullable=False)  # day, week, month, year
     StartDate = Column(Date, nullable=False)
