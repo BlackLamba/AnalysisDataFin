@@ -7,7 +7,7 @@ from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/budgets", tags=["budgets"]).router
 
-@router.post("/", response_model=Budget, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=Budget, status_code=status.HTTP_201_CREATED)
 async def create_budget(
     budget_data: BudgetCreate,
     db: AsyncSession = Depends(get_db)

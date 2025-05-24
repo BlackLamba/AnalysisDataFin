@@ -14,6 +14,7 @@ from app.core.security import (
 from app.schemas.token import TokenResponse, TokenData
 from app.services.user_service import UserService
 from app.models.user import User
+from app.repositories.user_repository import UserRepository
 
 
 class AuthService:
@@ -23,10 +24,13 @@ class AuthService:
         self.secret_key = settings.SECRET_KEY
         self.algorithm = settings.ALGORITHM
         self.access_token_expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        self.user_repository = UserRepository(db)
 
     async def authenticate_user(self, email: str, password: str) -> Optional[User]:
-        user = await self.user_service.get_by_email(email=email)
-        if not user or not verify_password(password, user.hashed_password):
+        user = await self.user_repository.get_by_email(self.db, email=email)  # Передаем db
+        if not user:
+            return None
+        if not verify_password(password, user.hashed_password):
             return None
         return user
 
@@ -35,16 +39,12 @@ class AuthService:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password",
-                headers={"WWW-Authenticate": "Bearer"},
+                detail="Incorrect email or password"
             )
 
-        access_token_expires = timedelta(minutes=self.access_token_expire_minutes)
         access_token = create_access_token(
-            data={"sub": user.email, "user_id": str(user.UserID)},
-            expires_delta=access_token_expires,
-            secret_key=self.secret_key,
-            algorithm=self.algorithm
+            data={"sub": user.Email, "user_id": str(user.UserID)},
+            expires_delta=timedelta(minutes=30)
         )
         return TokenResponse(access_token=access_token, token_type="bearer")
 
@@ -67,7 +67,7 @@ class AuthService:
         except JWTError:
             raise credentials_exception
 
-        user = await self.user_service.get_by_email(email=token_data.email)
+        user = await self.user_repository.get_by_email(email=token_data.email)
         if user is None:
             raise credentials_exception
         return user
@@ -76,7 +76,7 @@ class AuthService:
         user = await self.get_current_user(token)
         access_token_expires = timedelta(minutes=self.access_token_expire_minutes)
         access_token = create_access_token(
-            data={"sub": user.email, "user_id": str(user.UserID)},
+            data={"sub": user.Email, "user_id": str(user.UserID)},
             expires_delta=access_token_expires,
             secret_key=self.secret_key,
             algorithm=self.algorithm

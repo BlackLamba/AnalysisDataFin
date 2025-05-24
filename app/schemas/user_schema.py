@@ -24,3 +24,9 @@ class User(BaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+class UserUpdate(BaseModel):
+    last_name: Optional[str] = Field(None, max_length=50)
+    first_name: Optional[str] = Field(None, max_length=50)
+    middle_name: Optional[str] = Field(None, max_length=50)
+    password: Optional[SecretStr] = Field(None, min_length=8)

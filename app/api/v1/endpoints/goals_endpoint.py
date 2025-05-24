@@ -7,7 +7,7 @@ from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/goals", tags=["goals"]).router
 
-@router.post("/", response_model=SavingsGoal, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SavingsGoal, status_code=status.HTTP_201_CREATED)
 async def create_goal(
     goal_data: SavingsGoalCreate,
     db: AsyncSession = Depends(get_db)
