@@ -17,6 +17,7 @@ class TransactionService:
                 TransactionID=uuid.uuid4(),
                 UserID=transaction_data.user_id,
                 CategoryID=transaction_data.category_id,
+                AccountID=transaction_data.account_id,
                 Amount=transaction_data.amount,
                 Description=transaction_data.description,
                 TransactionDate=transaction_data.transaction_date or datetime.utcnow(),

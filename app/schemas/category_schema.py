@@ -5,15 +5,15 @@ from enum import Enum
 
 
 class CategoryType(str, Enum):
-    INCOME = "income"
-    EXPENSE = "expense"
+    INCOME = "INCOME"
+    EXPENSE = "EXPENSE"
 
 
 class CategoryBase(BaseModel):
-    name: str = Field(..., max_length=50)
-    type: CategoryType
-    category: str = Field(..., max_length=50)  # Основная категория
-    parent_id: Optional[UUID] = None
+    name: str = Field(..., max_length=50, alias="Name")
+    type: CategoryType = Field(..., alias="Type")
+    category: str = Field(..., max_length=50, alias="Category")  # Основная категория
+    parent_id: Optional[UUID] = Field(None, alias="ParentID")
 
 
 class CategoryCreate(CategoryBase):
@@ -21,10 +21,11 @@ class CategoryCreate(CategoryBase):
 
 
 class Category(CategoryBase):
-    category_id: UUID
+    category_id: UUID = Field(..., alias="CategoryID")
 
     model_config = ConfigDict(
-        from_attributes=True
+        from_attributes=True,
+        populate_by_name=True
     )
 
 

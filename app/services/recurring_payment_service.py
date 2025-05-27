@@ -18,7 +18,7 @@ class RecurringPaymentService:
                 AccountID=payment_data.account_id,
                 Name=payment_data.name,
                 Amount=payment_data.amount,
-                Frequency=payment_data.frequency,
+                Frequency=payment_data.frequency.value,
                 StartDate=payment_data.start_date,
                 EndDate=payment_data.end_date
             )

@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, UUID4
 from datetime import datetime
 from typing import Optional
 
 
 class BudgetBase(BaseModel):
-    user_id: str = Field(..., alias="UserID")
-    category_id: str = Field(..., alias="CategoryID")
+    user_id: UUID4 = Field(..., alias="UserID")  # И здесь тоже
+    category_id: UUID4 = Field(..., alias="CategoryID")  # И здесь
     amount: float = Field(..., alias="Amount")
     period: str = Field(..., alias="Period")  # "day", "week", "month", "year"
     start_date: datetime = Field(..., alias="StartDate")
@@ -22,7 +22,7 @@ class BudgetCreate(BudgetBase):
 
 
 class Budget(BudgetBase):
-    budget_id: str = Field(..., alias="BudgetID")
+    budget_id: UUID4 = Field(..., alias="BudgetID")
 
     model_config = ConfigDict(
         from_attributes=True,

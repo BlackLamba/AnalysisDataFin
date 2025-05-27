@@ -18,8 +18,8 @@ class BudgetService:
                 CategoryID=budget_data.category_id,
                 Amount=budget_data.amount,
                 Period=budget_data.period,
-                StartDate=budget_data.date,
-                EndDate=budget_data.date,
+                StartDate=budget_data.start_date,
+                EndDate=budget_data.end_date,
             )
             self.db.add(new_budget)
             await self.db.commit()

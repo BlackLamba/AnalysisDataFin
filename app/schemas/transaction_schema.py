@@ -1,19 +1,20 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, UUID4
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
 
 class TransactionCreate(BaseModel):
-    user_id: int
-    category_id: int
-    amount: float
-    description: Optional[str] = Field(None, max_length=255)
-    transaction_date: Optional[datetime] = None  # можно не передавать
+    user_id: UUID4 = Field(..., alias="UserID")
+    category_id: UUID4 = Field(..., alias="CategoryID")
+    amount: float = Field(..., alias="Amount")
+    account_id: UUID4 = Field(..., alias="AccountID")
+    description: Optional[str] = Field(None, max_length=255, alias="Description")
+    transaction_date: Optional[datetime] = Field(None, alias="TransactionDate")  # можно не передавать
 
 
 class Transaction(TransactionCreate):
-    transaction_id: UUID
+    transaction_id: UUID4 = Field(..., alias="TransactionID")
 
     model_config = ConfigDict(
         from_attributes=True

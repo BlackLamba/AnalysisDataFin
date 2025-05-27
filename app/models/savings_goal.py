@@ -13,7 +13,7 @@ class SavingsGoal(Base):
     UserID = Column(UUID(as_uuid=True), ForeignKey("users.UserID"), nullable=False)
     Name = Column(String(100), nullable=False)
     TargetAmount = Column(Numeric(15, 2), nullable=False)
-    CurrentAmount = Column(Numeric(15, 2), server_default="0")
+    CurrentAmount = Column(Numeric(15, 2), server_default="0")  # Важно!
     TargetDate = Column(DateTime)
     Description = Column(String(255))
 
