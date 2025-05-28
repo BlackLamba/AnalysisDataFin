@@ -1,27 +1,70 @@
-from fastapi import Depends, HTTPException, status
+from datetime import datetime
+from typing import Optional, List
+
+from fastapi import Depends, HTTPException, Query, Path
+from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.transaction_schema import TransactionCreate, Transaction
-from app.services.transaction_service import TransactionService
-from app.db.session import get_db
+from app.schemas.transaction_schema import (
+    TransactionCreate,
+    Transaction,
+    TransactionStatsByPeriod,
+    TransactionStatsByCategory
+)
+from app.repositories.transaction_repository import TransactionRepository
+from app.dependencies import get_transaction_repo
+from .deps import get_current_user_id
 from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/transactions", tags=["transactions"]).router
 
-@router.post("", response_model=Transaction, status_code=status.HTTP_201_CREATED)
+
+@router.post("", response_model=Transaction, status_code=201)
 async def create_transaction(
     transaction_data: TransactionCreate,
-    db: AsyncSession = Depends(get_db)
+    repo: TransactionRepository = Depends(get_transaction_repo)
 ):
-    service = TransactionService(db)
-    return await service.create(transaction_data=transaction_data)
+    return await repo.create(transaction_data)
+
 
 @router.get("/{transaction_id}", response_model=Transaction)
 async def read_transaction(
-    transaction_id: str,
-    db: AsyncSession = Depends(get_db)
+    transaction_id: UUID4,
+    repo: TransactionRepository = Depends(get_transaction_repo)
 ):
-    service = TransactionService(db)
-    transaction = await service.get(transaction_id)
+    transaction = await repo.get_by_id(transaction_id)
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return transaction
+
+
+@router.get("/stats/period/{period}", response_model=TransactionStatsByPeriod)
+async def get_period_stats(
+    period: str = Path(..., regex="^(day|week|month|year)$"),
+    date: Optional[datetime] = None,
+    user_id: UUID4 = Depends(get_current_user_id),
+    repo: TransactionRepository = Depends(get_transaction_repo)
+):
+    result = await repo.get_expenses_by_period(user_id, period, date)
+    return TransactionStatsByPeriod(**result)
+
+
+@router.get("/expenses/categories/{period}", response_model=List[TransactionStatsByCategory])
+async def get_expenses_by_category(
+    period: str = Path(..., regex="^(day|week|month|year)$"),
+    date: Optional[datetime] = None,
+    user_id: UUID4 = Depends(get_current_user_id),
+    repo: TransactionRepository = Depends(get_transaction_repo)
+):
+    data = await repo.get_expenses_by_category(user_id, period, date)
+    return [TransactionStatsByCategory(**item) for item in data]
+
+
+@router.get("/income/categories/{period}", response_model=List[TransactionStatsByCategory])
+async def get_income_by_category(
+    period: str = Path(..., regex="^(day|week|month|year)$"),
+    date: Optional[datetime] = None,
+    user_id: UUID4 = Depends(get_current_user_id),
+    repo: TransactionRepository = Depends(get_transaction_repo)
+):
+    data = await repo.get_income_by_category(user_id, period, date)
+    return [TransactionStatsByCategory(**item) for item in data]

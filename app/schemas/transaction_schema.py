@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict, UUID4
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
 
@@ -23,3 +23,22 @@ class Transaction(TransactionCreate):
 
 class TransactionUpdate:
     pass
+
+
+class TransactionStatsByPeriod(BaseModel):
+    total_amount: float = Field(..., alias="total_amount")
+    count: int = Field(..., alias="count")
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
+
+class TransactionStatsByCategory(BaseModel):
+    category_name: str = Field(..., alias="category_name")
+    total_amount: float = Field(..., alias="total_amount")
+    count: int = Field(..., alias="count")
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
