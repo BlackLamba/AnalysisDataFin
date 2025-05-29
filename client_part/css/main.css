@@ -1,4 +1,4 @@
-/* main.css — базовая тёмная тема Finomic */
+/* main.css — тёмная тема Finomic с зелёным анимированным фоном и подсветками */
 
 body {
   margin: 0;
@@ -7,23 +7,73 @@ body {
   color: #f0f0f0;
   display: flex;
   height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Анимированный фон с тонкими зелёными линиями */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(74, 222, 128, 0.07) 0,
+      rgba(74, 222, 128, 0.07) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(74, 222, 128, 0.07) 0,
+      rgba(74, 222, 128, 0.07) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  animation: moveLines 15s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes moveLines {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 40px 40px, -40px -40px;
+  }
 }
 
 .dashboard {
   display: flex;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar {
   width: 220px;
   background: #1e1e1e;
   padding: 20px;
+  box-shadow: inset -2px 0 8px rgba(74, 222, 128, 0.15);
 }
 
 .logo {
   font-size: 1.5rem;
   color: #4ade80;
   margin-bottom: 2rem;
+  text-shadow: none; /* убрал свечения */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-img {
+  width: 32px;
+  height: 32px;
 }
 
 .sidebar ul {
@@ -36,12 +86,16 @@ body {
   cursor: pointer;
   padding: 8px 12px;
   border-radius: 8px;
-  transition: background 0.2s;
+  transition: background 0.3s ease, color 0.3s ease;
+  color: #cbd5e1;
+  text-shadow: none; /* убрал свечения */
 }
 
 .sidebar li:hover,
 .sidebar li.active {
-  background: #2a2a2a;
+  background: #256f29;
+  color: #d0f7d0;
+  /* убрал box-shadow и transform */
 }
 
 .main {
@@ -53,6 +107,8 @@ body {
 .topbar h1 {
   font-size: 1.8rem;
   margin-bottom: 20px;
+  text-shadow: none; /* убрал свечения */
+  box-shadow: none;
 }
 
 .cards {
@@ -66,27 +122,36 @@ body {
   background: #1a1a1a;
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
 }
 
 .card h3 {
   margin: 0 0 10px;
   font-weight: normal;
   color: #9ca3af;
+  text-shadow: none; /* убрал свечения */
 }
 
 .card p {
   font-size: 1.5rem;
   margin: 0;
   color: #f0f0f0;
+  text-shadow: none; /* убрал свечения */
 }
 
 .balance p {
   color: #4ade80;
 }
+
 .income p {
   color: #60a5fa;
 }
+
 .expenses p {
   color: #f87171;
 }
@@ -94,12 +159,14 @@ body {
 .graph h2 {
   font-size: 1.4rem;
   margin-bottom: 20px;
+  text-shadow: none; /* убрал подсветку */
 }
 
 canvas {
   max-width: 100%;
   background: #1e1e1e;
   border-radius: 12px;
+  box-shadow: none; /* убрал подсветку */
 }
 
 /* ====== Форма ввода ====== */
@@ -109,7 +176,11 @@ canvas {
   background: #1a1a1a;
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: none;
+}
+
+.form-section:hover {
+  box-shadow: none;
 }
 
 .transaction-form {
@@ -123,6 +194,7 @@ canvas {
   flex-direction: column;
   font-size: 0.9rem;
   color: #ccc;
+  text-shadow: none; /* убрал свечения */
 }
 
 .transaction-form input,
@@ -134,27 +206,80 @@ canvas {
   background: #2a2a2a;
   color: #f0f0f0;
   font-size: 1rem;
+  box-shadow: inset 0 0 6px #4ade80;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .transaction-form input::placeholder {
   color: #777;
 }
 
-.transaction-form button {
-  padding: 12px;
+.transaction-form input:focus,
+.transaction-form select:focus {
+  outline: none;
+  box-shadow: 0 0 8px #4ade80;
+  background: #354d2a;
+}
+
+/* Кнопки */
+button {
   background: #4ade80;
   color: #121212;
   font-weight: bold;
   border: none;
   border-radius: 8px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: background 0.2s;
+  box-shadow: none;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  font-size: 1rem;
+  appearance: none;
 }
 
-.transaction-form button:hover {
+button:hover {
   background: #22c55e;
+  box-shadow: 0 0 15px #4ade80;
+  transform: translateY(-1px);
 }
 
+button:focus {
+  outline: none;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+/* input[type="date"] в стиле select */
+input[type="date"] {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2a2a2a;
+  color: #f0f0f0;
+  font-size: 1rem;
+  box-shadow: inset 0 0 6px #4ade80;
+  cursor: pointer;
+  appearance: none;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Стилизация календаря и стрелочек в разных браузерах */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(60%) sepia(100%) saturate(700%) hue-rotate(90deg);
+}
+
+input[type="date"]:focus {
+  outline: none;
+  background: #354d2a;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(60%) sepia(100%) saturate(700%) hue-rotate(90deg);
+  cursor: pointer;
+}
+
+/* Общие настройки */
 * {
   box-sizing: border-box;
   transition: all 0.2s ease;
@@ -166,51 +291,194 @@ button:hover,
   transform: translateY(-1px);
 }
 
+select {
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: inset 0 0 6px #4ade80;
+  appearance: none; /* Убирает дефолтный стрелочный элемент */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%234ade80" height="12" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Для Firefox, который игнорирует appearance: none */
+select::-ms-expand {
+  display: none;
+}
+
+.sidebar a {
+  color: inherit; /* Наследует цвет от родителя */
+  text-decoration: none; /* Убирает подчёркивание */
+  display: block; /* Чтобы кликабельная область была по всему элементу */
+  padding: 8px 12px; /* Отступы как у li раньше */
+  border-radius: 8px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: #256f29;
+  color: #d0f7d0;
+}
+
+/* ===== Мобильная адаптация ===== */
+
 @media (max-width: 768px) {
   body {
     flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .logo-text {
+    display: none;
   }
 
   .dashboard {
     flex-direction: column;
   }
 
+  /* Сайдбар превращается в нижнее меню */
   .sidebar {
     width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background: #1e1e1e;
+    padding: 8px 10px;
+    box-shadow: 0 -2px 8px rgba(74, 222, 128, 0.15);
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
+    flex-wrap: nowrap;
+    z-index: 100;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
   }
 
   .sidebar ul {
     display: flex;
-    gap: 10px;
-    justify-content: center;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    justify-content: space-around;
   }
 
   .sidebar li {
-    padding: 6px 10px;
-    font-size: 0.9rem;
+    margin: 0;
+    flex: 1;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 8px 0;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .sidebar li:hover,
+  .sidebar li.active {
+    background: #256f29;
+    color: #d0f7d0;
+    /* Убрал box-shadow и transform */
   }
 
   .main {
-    padding: 20px;
+    padding: 16px 16px 80px; /* дополнительный padding снизу под меню */
+    overflow-y: auto;
+  }
+
+  .topbar h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    text-shadow: none; /* убрал свечения */
+    box-shadow: none;
   }
 
   .cards {
     flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 12px;
   }
 
   .form-section {
     width: 100%;
     max-width: 100%;
+    padding: 20px 16px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+  }
+
+  .transaction-form {
+    gap: 16px;
+  }
+
+  .transaction-form input,
+  .transaction-form select {
+    font-size: 1rem;
+    padding: 12px 10px;
+  }
+
+  .transaction-form button {
+    padding: 14px;
+    font-size: 1.1rem;
+    width: 100%;
   }
 
   canvas {
+    height: 250px;
     max-width: 100%;
+    border-radius: 12px;
+  }
+
+  /* Тосты чуть меньше */
+  .toast {
+    bottom: 70px; /* выше нижнего меню */
+    right: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: 10px;
   }
 }
 
+/* Для супер маленьких экранов (смартфоны) */
+@media (max-width: 480px) {
+  .topbar h1 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    text-shadow: none; /* убрал свечения */
+    box-shadow: none;
+  }
+
+  .logo-text {
+    display: none;
+  }
+
+  .sidebar li {
+    font-size: 0.8rem;
+    padding: 6px 0;
+  }
+
+  .transaction-form input,
+  .transaction-form select {
+    font-size: 0.95rem;
+    padding: 10px 8px;
+  }
+
+  .transaction-form button {
+    font-size: 1rem;
+    padding: 12px;
+  }
+}
+
+/* Тост уведомления */
 .toast {
   position: fixed;
   bottom: 20px;
@@ -219,7 +487,7 @@ button:hover,
   color: #121212;
   padding: 12px 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   font-weight: bold;
   opacity: 0;
   pointer-events: none;

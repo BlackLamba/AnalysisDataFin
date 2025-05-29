@@ -9,13 +9,19 @@
 <body>
   <div class="dashboard">
     <aside class="sidebar">
-      <h2 class="logo">Finomic</h2>
+      <h2>
+        <a href="index.html" class="logo">
+          <img src="../images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
       <nav>
         <ul>
-          <li>Сводка</li>
-          <li>Аналитика</li>
-          <li>Операции</li>
-          <li class="active">Настройки</li>
+          <li><a href="dashboard.html">Сводка</a></li>
+          <li><a href="analytics.html">Аналитика</a></li>
+          <li><a href="input.html">Операции</a></li>
+          <li><a href="settings.html">Настройки</a></li>
+          <li><a href="index.html">Создатели</a></li>
         </ul>
       </nav>
     </aside>
@@ -27,14 +33,6 @@
 
       <section class="form-section">
         <form class="settings-form">
-          <label>
-            Тема оформления:
-            <select>
-              <option value="dark" selected>Тёмная</option>
-              <option value="light">Светлая</option>
-            </select>
-          </label>
-
           <label>
             Валюта:
             <select>

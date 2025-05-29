@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0a0f0a;
+  color: #e0e6e0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Фон с анимированными зелёными линиями */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 255, 0, 0.05) 0,
+      rgba(0, 255, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 255, 0, 0.05) 0,
+      rgba(0, 255, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  animation: moveLines 10s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes moveLines {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 40px 40px, -40px -40px;
+  }
+}
+
+.login-container {
+  background: rgba(10, 15, 10, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 40px 50px;
+  width: 360px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+.login-container:hover {
+  box-shadow: 0 0 40px rgba(0, 255, 0, 0.7);
+}
+
+.login-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: #00ff00;
+  text-shadow: 0 0 10px #00ff00aa;
+  letter-spacing: 1.2px;
+}
+
+.login-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  color: #a0d8a0;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"],
+.login-container input[type="email"] {
+  width: 100%;
+  padding: 14px 15px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  border: 1px solid #006600;
+  background: #001100;
+  color: #a0d8a0;
+  font-size: 1rem;
+  box-shadow: inset 0 0 5px #00ff00aa;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-container input[type="email"]:focus,
+.login-container input[type="text"]:focus,
+.login-container input[type="password"]:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px #00ff00cc;
+  outline: none;
+  background: #003300;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 15px;
+  background: #00ff00;
+  border: none;
+  border-radius: 12px;
+  color: #001100;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  box-shadow: 0 0 15px #00ff00cc;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-container button:hover {
+  background: #00cc00;
+  box-shadow: 0 0 25px #00ff00dd;
+}
+
+.login-container .footer-text {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #70b070;
+}
+
+.login-container .footer-text a {
+  color: #00ff00;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.login-container .footer-text a:hover {
+  color: #00cc00;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 400px) {
+  .login-container {
+    width: 90vw;
+    padding: 30px 20px;
+  }
+}
+
+/* Убираем стандартную обводку у кнопок при клике, оставляя для клавиатуры */
+button:focus {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 2px solid #00ff00cc;
+  outline-offset: 2px;
+}
+
+/* Запасной фон под backdrop-filter для браузеров без поддержки */
+.login-container {
+  background-color: rgba(10, 15, 10, 0.9); /* чуть менее прозрачный запасной фон */
+}
+
+/* Плавное появление формы при загрузке */
+.login-container {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s forwards ease-out;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

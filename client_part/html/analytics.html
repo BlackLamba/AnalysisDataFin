@@ -9,13 +9,19 @@
 <body>
   <div class="dashboard">
     <aside class="sidebar">
-      <h2 class="logo">Finomic</h2>
+      <h2>
+        <a href="index.html" class="logo">
+          <img src="../images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
       <nav>
         <ul>
-          <li>Сводка</li>
-          <li class="active">Аналитика</li>
-          <li>Операции</li>
-          <li>Настройки</li>
+          <li><a href="dashboard.html">Сводка</a></li>
+          <li><a href="analytics.html">Аналитика</a></li>
+          <li><a href="input.html">Операции</a></li>
+          <li><a href="settings.html">Настройки</a></li>
+          <li><a href="index.html">Создатели</a></li>
         </ul>
       </nav>
     </aside>
@@ -61,10 +67,8 @@
       </section>
     </main>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../dynamic/analyticsCharts.js"></script>
   <script src="../dynamic/navHighlight.js"></script>
-
 </body>
 </html>
