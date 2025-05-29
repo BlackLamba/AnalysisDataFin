@@ -294,7 +294,7 @@ button:hover,
 select {
   background-color: #2a2a2a;
   color: #f0f0f0;
-  padding: 8px 12px;
+  padding: 14px 16px;
   border: none;
   border-radius: 8px;
   box-shadow: inset 0 0 6px #4ade80;
@@ -327,8 +327,11 @@ select::-ms-expand {
   color: #d0f7d0;
 }
 
-/* ===== Мобильная адаптация ===== */
+.mobile-footer {
+  display: none;
+}
 
+/* ===== Мобильная адаптация ===== */
 @media (max-width: 768px) {
   body {
     flex-direction: column;
@@ -446,10 +449,69 @@ select::-ms-expand {
     font-size: 0.9rem;
     border-radius: 10px;
   }
+  .mobile-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #1e1e1e; /* глубокий тёмный фон, как у .sidebar */
+    display: flex;
+    justify-content: space-evenly;
+    padding: 8px 0;
+    border-top: 1px solid #256f29; /* мягкий зелёный бордер */
+    box-shadow: 0 -2px 6px rgba(74, 222, 128, 0.15); /* как .sidebar */
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+   }
+
+  .footer-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #4ade80;
+      text-decoration: none;
+      font-size: 1.4rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, color 0.3s ease;
+      line-height: 1; /* Уменьшаем высоту строки, чтобы текст не отодвигался */
+  }
+
+  .footer-link:hover {
+    transform: scale(1.15);
+    color: #22c55e;
+  }
+
+  .footer-link span {
+    font-size: 11px;
+    margin-top: 2px;
+    color: #a3e6b1; /* чуть светлее и мягче */
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .footer-link img {
+      width: 35px;
+      height: 35px;
+      display: block;
+      margin-bottom: -17px; /* чуть меньше отступ */
+      vertical-align: middle; /* выравнивание */
+  }
+
+  .footer-link span {
+      font-size: 11px;
+      margin-top: 0px;
+      color: #a3e6b1;
+      line-height: 1; /* чтобы текст был плотнее */
+      font-weight: bold;
+  }
 }
 
 /* Для супер маленьких экранов (смартфоны) */
-@media (max-width: 480px) {
+@media (max-width: 320px) {
   .topbar h1 {
     font-size: 1.3rem;
     margin-bottom: 12px;
@@ -476,6 +538,11 @@ select::-ms-expand {
     font-size: 1rem;
     padding: 12px;
   }
+
+  .sidebar {
+    display: none;
+  }
+
 }
 
 /* Тост уведомления */

@@ -18,7 +18,7 @@ body {
   overflow: hidden;
 }
 
-/* Фон с анимированными зелёными линиями */
+/* Анимированный фон */
 body::before {
   content: "";
   position: fixed;
@@ -27,15 +27,15 @@ body::before {
   background:
     repeating-linear-gradient(
       45deg,
-      rgba(0, 255, 0, 0.05) 0,
-      rgba(0, 255, 0, 0.05) 1px,
+      rgba(0, 255, 0, 0.03) 0,
+      rgba(0, 255, 0, 0.03) 1px,
       transparent 1px,
       transparent 20px
     ),
     repeating-linear-gradient(
       -45deg,
-      rgba(0, 255, 0, 0.05) 0,
-      rgba(0, 255, 0, 0.05) 1px,
+      rgba(0, 255, 0, 0.03) 0,
+      rgba(0, 255, 0, 0.03) 1px,
       transparent 1px,
       transparent 20px
     );
@@ -45,137 +45,117 @@ body::before {
 }
 
 @keyframes moveLines {
-  0% {
-    background-position: 0 0, 0 0;
-  }
-  100% {
-    background-position: 40px 40px, -40px -40px;
-  }
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 40px 40px, -40px -40px; }
 }
 
 .login-container {
-  background: rgba(10, 15, 10, 0.8);
-  backdrop-filter: blur(8px);
-  border-radius: 16px;
-  padding: 40px 50px;
+  background: rgba(10, 15, 10, 0.85);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 36px 40px;
   width: 360px;
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-  transition: box-shadow 0.3s ease;
+  border: 1px solid #1f3321;
+  transition: border-color 0.3s ease;
 }
 
 .login-container:hover {
-  box-shadow: 0 0 40px rgba(0, 255, 0, 0.7);
+  border-color: #3a6340;
 }
 
 .login-container h1 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   font-weight: 700;
-  font-size: 2.5rem;
-  color: #00ff00;
-  text-shadow: 0 0 10px #00ff00aa;
-  letter-spacing: 1.2px;
+  font-size: 2rem;
+  color: #4ee44e;
+  letter-spacing: 0.8px;
 }
 
 .login-container label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  font-size: 1rem;
-  letter-spacing: 0.05em;
-  color: #a0d8a0;
+  font-size: 0.95rem;
+  color: #c2dbc2;
 }
 
 .login-container input[type="text"],
 .login-container input[type="password"],
 .login-container input[type="email"] {
   width: 100%;
-  padding: 14px 15px;
-  margin-bottom: 25px;
-  border-radius: 12px;
-  border: 1px solid #006600;
-  background: #001100;
-  color: #a0d8a0;
-  font-size: 1rem;
-  box-shadow: inset 0 0 5px #00ff00aa;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #264c29;
+  background: #101510;
+  color: #c2dbc2;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease, background 0.3s ease;
 }
 
-.login-container input[type="email"]:focus,
-.login-container input[type="text"]:focus,
-.login-container input[type="password"]:focus {
-  border-color: #00ff00;
-  box-shadow: 0 0 10px #00ff00cc;
+.login-container input:focus {
+  border-color: #4ee44e;
+  background: #141f14;
   outline: none;
-  background: #003300;
 }
 
 .login-container button {
   width: 100%;
-  padding: 15px;
-  background: #00ff00;
+  padding: 14px;
+  background: #4ee44e;
   border: none;
-  border-radius: 12px;
-  color: #001100;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  border-radius: 10px;
+  color: #0a0f0a;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  box-shadow: 0 0 15px #00ff00cc;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  transition: background 0.3s ease;
 }
 
 .login-container button:hover {
-  background: #00cc00;
-  box-shadow: 0 0 25px #00ff00dd;
+  background: #3cbf3c;
 }
 
 .login-container .footer-text {
-  margin-top: 20px;
+  margin-top: 18px;
   text-align: center;
-  font-size: 0.9rem;
-  color: #70b070;
+  font-size: 0.85rem;
+  color: #a5cba5;
 }
 
 .login-container .footer-text a {
-  color: #00ff00;
+  color: #4ee44e;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .login-container .footer-text a:hover {
-  color: #00cc00;
+  color: #3cbf3c;
 }
 
-/* Адаптивность для мобильных */
 @media (max-width: 400px) {
   .login-container {
     width: 90vw;
-    padding: 30px 20px;
+    padding: 28px 20px;
   }
 }
 
-/* Убираем стандартную обводку у кнопок при клике, оставляя для клавиатуры */
 button:focus {
   outline: none;
 }
 
 button:focus-visible {
-  outline: 2px solid #00ff00cc;
+  outline: 2px solid #4ee44e;
   outline-offset: 2px;
 }
 
-/* Запасной фон под backdrop-filter для браузеров без поддержки */
-.login-container {
-  background-color: rgba(10, 15, 10, 0.9); /* чуть менее прозрачный запасной фон */
-}
-
-/* Плавное появление формы при загрузке */
 .login-container {
   opacity: 0;
   transform: translateY(20px);
-  animation: fadeInUp 0.6s forwards ease-out;
+  animation: fadeInUp 0.5s forwards ease-out;
 }
 
 @keyframes fadeInUp {
@@ -184,4 +164,3 @@ button:focus-visible {
     transform: translateY(0);
   }
 }
-
