@@ -331,6 +331,17 @@ select::-ms-expand {
   display: none;
 }
 
+.graph canvas {
+  max-width: 1200px;
+  max-height: 500px;
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #1e1e1e; /* чтобы совпадало с фоном */
+  border-radius: 12px;
+}
+
+
 /* ===== Мобильная адаптация ===== */
 @media (max-width: 768px) {
   body {
