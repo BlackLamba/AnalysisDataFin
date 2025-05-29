@@ -1,12 +1,12 @@
 import uuid
 
 from pydantic import UUID4
-from sqlalchemy import select, func, and_, extract, RowMapping
+from sqlalchemy import select, func, and_, extract, RowMapping, Integer, cast
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from datetime import datetime, timedelta
-from typing import List, Optional, Any, Mapping, Sequence
+from typing import List, Optional, Any, Mapping, Sequence, Dict
 from app.models import Transaction, Category
 from app.schemas import transaction_schema, TransactionCreate
 
@@ -101,36 +101,157 @@ class TransactionRepository:
             group_by_column=Category.Category.label("category_name")
         )
 
-    async def get_income_by_period(self, user_id: UUID4, period: str, date: Optional[datetime] = None) -> dict:
-        data = await self._get_aggregated_data(
-            user_id=user_id,
-            period=period,
-            date=date,
-            category_type='INCOME'
-        )
-        if not data:
-            return {"total_amount": 0.0, "count": 0}
+    async def get_stats_by_day_with_hours(self, user_id: UUID4, date: Optional[datetime] = None) -> dict:
+        """
+        Получить агрегированные данные по транзакциям за день, сгруппированные по часам и типу категории
+        """
+        date = date or datetime.utcnow()
 
-        row = dict(data[0])
+        query = (
+            select(
+                Category.Type.label("category_type"),
+                func.sum(func.abs(Transaction.Amount)).label("total_amount"),
+                cast(extract('hour', Transaction.TransactionDate), Integer).label("transaction_hour")
+            )
+            .join(Category, Transaction.CategoryID == Category.CategoryID)
+            .where(
+                Transaction.UserID == user_id,
+                func.date(Transaction.TransactionDate) == date.date()
+            )
+            .group_by(
+                Category.Type,
+                extract('hour', Transaction.TransactionDate)
+            )
+            .order_by(extract('hour', Transaction.TransactionDate))
+        )
+
+        result = await self.db.execute(query)
+        rows = result.mappings().all()
+
         return {
-            "total_amount": float(row["total_amount"]) if row["total_amount"] is not None else 0.0,
-            "count": row["count"]
+            "day": date.date().isoformat(),
+            "data": rows
         }
 
-    async def get_expenses_by_period(self, user_id: UUID4, period: str, date: Optional[datetime] = None) -> dict:
-        data = await self._get_aggregated_data(
-            user_id=user_id,
-            period=period,
-            date=date,
-            category_type='EXPENSE'
-        )
-        if not data:
-            return {"total_amount": 0.0, "count": 0}
+    async def get_stats_by_week(self, user_id: UUID4, date: Optional[datetime] = None) -> dict:
+        """
+        Получить агрегированные данные по транзакциям за неделю
+        """
+        date = date or datetime.utcnow()
 
-        row = dict(data[0])
+        # Начало недели (понедельник)
+        start_of_week = date - timedelta(days=date.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        query = (
+            select(
+                Category.Type.label("category_type"),
+                func.sum(func.abs(Transaction.Amount)).label("total_amount"),
+                func.date(Transaction.TransactionDate).label("transaction_day")
+            )
+            .join(Category, Transaction.CategoryID == Category.CategoryID)
+            .where(
+                Transaction.UserID == user_id,
+                func.date(Transaction.TransactionDate).between(
+                    start_of_week.date(),
+                    end_of_week.date()
+                )
+            )
+            .group_by(
+                Category.Type,
+                func.date(Transaction.TransactionDate)
+            )
+            .order_by(func.date(Transaction.TransactionDate))
+        )
+
+        result = await self.db.execute(query)
+        rows = result.mappings().all()
+
         return {
-            "total_amount": float(row["total_amount"]) if row["total_amount"] is not None else 0.0,
-            "count": row["count"]
+            "week_range": f"{start_of_week.date()} – {end_of_week.date()}",
+            "data": rows
+        }
+
+    async def get_stats_by_month(self, user_id: UUID4, date: Optional[datetime] = None) -> dict:
+        date = date or datetime.utcnow()
+
+        query = (
+            select(
+                Category.Type.label("category_type"),
+                func.sum(func.abs(Transaction.Amount)).label("total_amount"),
+                func.date(Transaction.TransactionDate).label("transaction_day")
+            )
+            .join(Category, Transaction.CategoryID == Category.CategoryID)
+            .where(
+                Transaction.UserID == user_id,
+                extract('year', Transaction.TransactionDate) == date.year,
+                extract('month', Transaction.TransactionDate) == date.month
+            )
+            .group_by(
+                Category.Type,
+                func.date(Transaction.TransactionDate)
+            )
+            .order_by(func.date(Transaction.TransactionDate))
+        )
+
+        result = await self.db.execute(query)
+        rows = result.mappings().all()
+
+        # Преобразуем даты в строки
+        cleaned_data = [
+            {
+                "category_type": row["category_type"],
+                "total_amount": float(row["total_amount"]),
+                "transaction_day": row["transaction_day"].isoformat()  # <-- date → str
+            }
+            for row in rows
+        ]
+
+        return {
+            "month": f"{date.year}-{date.month:02d}",
+            "data": cleaned_data
+        }
+
+    from sqlalchemy import func, select, text
+    from app.models import Transaction, Category
+
+    async def get_stats_by_year(self, user_id: UUID4, date: Optional[datetime] = None) -> dict:
+        date = date or datetime.utcnow()
+
+        transaction_month = func.to_char(Transaction.TransactionDate, 'YYYY-MM').label("transaction_month")
+
+        query = (
+            select(
+                Category.Type.label("category_type"),
+                func.sum(func.abs(Transaction.Amount)).label("total_amount"),
+                transaction_month
+            )
+            .join(Category, Transaction.CategoryID == Category.CategoryID)
+            .where(
+                Transaction.UserID == str(user_id),
+                extract('year', Transaction.TransactionDate) == date.year
+            )
+            .group_by(
+                Category.Type,
+                transaction_month
+            )
+            .order_by(transaction_month)
+        )
+
+        result = await self.db.execute(query)
+        rows = result.mappings().all()
+
+        # Убедимся, что возвращается поле `year`, а не `month`
+        return {
+            "year": str(date.year),  # <-- Вот он ключевой момент!
+            "data": [
+                {
+                    "category_type": row["category_type"],
+                    "total_amount": float(row["total_amount"]),
+                    "transaction_month": row["transaction_month"]
+                }
+                for row in rows
+            ]
         }
 
     async def create(self, transaction_data: TransactionCreate) -> Transaction:

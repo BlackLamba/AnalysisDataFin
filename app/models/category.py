@@ -5,11 +5,9 @@ from app.models.base import Base
 from enum import Enum as PyEnum
 import uuid
 
-class FrequencyEnum(str, PyEnum):
-    daily = "daily"
-    weekly = "weekly"
-    monthly = "monthly"
-    yearly = "yearly"
+class CategoryType(str, PyEnum):
+    INCOME = "INCOME"
+    EXPENSE = "EXPENSE"
 
 class Category(Base):
     __tablename__ = "categories"
@@ -18,7 +16,7 @@ class Category(Base):
     ParentID = Column(UUID(as_uuid=True), ForeignKey("categories.CategoryID"), nullable=True)
     Name = Column(String(50), nullable=False)
     Type = Column(
-        Enum(FrequencyEnum, name="category_type_enum", create_constraint=True),
+        Enum(CategoryType, name="category_type_enum", create_constraint=True),
         nullable=False
     )
     Category = Column(String(50), nullable=False)
