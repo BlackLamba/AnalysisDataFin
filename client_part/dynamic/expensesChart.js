@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", function () {
           tension: 0.3,
           pointBackgroundColor: "#f87171"
         },
+        {
+          label: "Доходы",
+          data: [5000, 7000, 6000, 8000, 9000, 7500, 8200],
+          borderColor: "#60a5fa",
+          backgroundColor: "rgba(96, 165, 250, 0.2)",
+          tension: 0.3,
+          pointBackgroundColor: "#60a5fa"
+        },
       ],
     },
     options: {
