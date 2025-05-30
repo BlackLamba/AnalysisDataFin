@@ -341,7 +341,7 @@ select::-ms-expand {
   display: block;
   background: #1e1e1e; /* чтобы совпадало с фоном */
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 
