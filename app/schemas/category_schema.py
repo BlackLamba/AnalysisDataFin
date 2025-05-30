@@ -10,10 +10,8 @@ class CategoryType(str, Enum):
 
 
 class CategoryBase(BaseModel):
-    name: str = Field(..., max_length=50, alias="Name")
     type: CategoryType = Field(..., alias="Type")
     category: str = Field(..., max_length=50, alias="Category")  # Основная категория
-    parent_id: Optional[UUID] = Field(None, alias="ParentID")
 
 
 class CategoryCreate(CategoryBase):

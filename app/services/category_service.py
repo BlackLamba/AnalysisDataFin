@@ -14,8 +14,6 @@ class CategoryService:
         try:
             new_category = Category(
                 CategoryID=uuid.uuid4(),
-                ParentID=category_data.parent_id,
-                Name=category_data.name,
                 Type=category_data.type.value,
                 Category=category_data.category
             )

@@ -4,13 +4,12 @@ from pydantic import UUID4
 from sqlalchemy import select, func, and_, extract, RowMapping, Integer, cast
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 from datetime import datetime, timedelta
-from typing import List, Optional, Any, Mapping, Sequence, Dict
+from typing import Optional, Any, Mapping, Sequence, List
 from app.models import Transaction, Category
-from app.schemas import transaction_schema, TransactionCreate
+from app.schemas import TransactionCreate
 
-from typing import List, Tuple
+from typing import List
 from sqlalchemy.sql.elements import BinaryExpression
 
 
@@ -50,7 +49,7 @@ class TransactionRepository:
 
     async def _get_aggregated_data(
             self,
-            user_id: str,
+            user_id: UUID4,
             category_type: str,  # Например: 'INCOME' или 'EXPENSE'
             period: str = 'month',
             date: Optional[datetime] = None,
@@ -81,27 +80,17 @@ class TransactionRepository:
 
     # Обновленные методы
 
-    async def get_expenses_by_category(self, user_id: UUID4, period: str, date: Optional[datetime] = None) -> List[
-        dict]:
+    async def get_type_by_category(self, user_id: UUID4, type: str, period: str, date: Optional[datetime] = None) -> \
+    list[Mapping[Any, Any]] | Sequence[RowMapping]:
         return await self._get_aggregated_data(
             user_id=user_id,
-            category_type='EXPENSE',  # Фильтруем только доходы
+            category_type=type,  # Фильтруем только доходы
             period=period,
             date=date,
             group_by_column=Category.Category.label("category_name")
         )
 
-    async def get_income_by_category(self, user_id: UUID4, period: str, date: Optional[datetime] = None) -> List[
-        dict]:
-        return await self._get_aggregated_data(
-            user_id=user_id,
-            category_type='INCOME',  # Фильтруем только доходы
-            period=period,
-            date=date,
-            group_by_column=Category.Category.label("category_name")
-        )
-
-    async def get_stats_by_day_with_hours(self, user_id: UUID4, date: Optional[datetime] = None) -> dict:
+    async def get_stats_by_day(self, user_id: UUID4, date: Optional[datetime] = None) -> dict:
         """
         Получить агрегированные данные по транзакциям за день, сгруппированные по часам и типу категории
         """
@@ -254,11 +243,23 @@ class TransactionRepository:
             ]
         }
 
-    async def create(self, transaction_data: TransactionCreate) -> Transaction:
+    async def get_stats_by_period(self, user_id: UUID4, period: str, date: Optional[datetime] = None):
+        if period == "day":
+            return await self.get_stats_by_day(user_id, date)
+        elif period == "week":
+            return await self.get_stats_by_week(user_id, date)
+        elif period == "month":
+            return await self.get_stats_by_month(user_id, date)
+        elif period == "year":
+            return await self.get_stats_by_year(user_id, date)
+        else:
+            raise ValueError(f"Unknown period: {period}")
+
+    async def create(self, user_id: UUID4, transaction_data: TransactionCreate) -> Transaction:
         try:
             new_transaction = Transaction(
                 TransactionID=uuid.uuid4(),
-                UserID=transaction_data.user_id,
+                UserID=user_id,
                 CategoryID=transaction_data.category_id,
                 AccountID=transaction_data.account_id,
                 Amount=transaction_data.amount,
@@ -273,10 +274,13 @@ class TransactionRepository:
             await self.db.rollback()
             raise e
 
-    async def get_by_id(self, transaction_id: uuid.UUID) -> Optional[Transaction]:
+    async def get_by_id(self, user_id: UUID4, transaction_id: UUID4) -> Optional[Transaction]:
         try:
             result = await self.db.execute(
-                select(Transaction).where(Transaction.TransactionID == transaction_id)
+                select(Transaction).where(
+                    Transaction.TransactionID == transaction_id,
+                    Transaction.UserID == user_id  # <-- Добавили фильтр по user_id
+                )
             )
             return result.scalar_one_or_none()
         except SQLAlchemyError as e:

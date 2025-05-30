@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from pydantic import BaseModel, Field, ConfigDict, UUID4, model_validator
-from typing import Optional, List
+from typing import Optional, List, Union
 from uuid import UUID
 from datetime import datetime, date
 
@@ -23,83 +23,45 @@ class Transaction(TransactionCreate):
     )
 
 
-class TransactionUpdate:
-    pass
-
-
-class TransactionStatsByHour(BaseModel):
+class TransactionStats(BaseModel):
     type: str = Field(..., alias="category_type")
     amount: float = Field(..., alias="total_amount")
-    hour: int = Field(..., alias="transaction_hour")
+    period: Union[int, str] = Field(..., alias="transaction_period")  # может быть днём, месяцем, годом, часом
 
     @model_validator(mode="before")
-    @classmethod
-    def convert_values(cls, values):
-        # Создаем обычный dict, чтобы можно было изменять
-        values = dict(values)  # <-- Вот ключевой момент!
-
-        if isinstance(values.get("transaction_day"), date):
-            values["transaction_day"] = values["transaction_day"].isoformat()
-
-        if "transaction_hour" in values and isinstance(values["transaction_hour"], Decimal):
-            values["transaction_hour"] = int(values["transaction_hour"])
-
-        if "total_amount" in values and isinstance(values["total_amount"], (int, float, Decimal)):
-            values["total_amount"] = float(values["total_amount"])
-
-        return values
-
-class TransactionStatsByDayWithHours(BaseModel):
-    day: str
-    data: List[TransactionStatsByHour]
-
-class TransactionStatsByDay(BaseModel):
-    type: str = Field(..., alias="category_type")
-    amount: float = Field(..., alias="total_amount")
-    day: str = Field(..., alias="transaction_day")
-
-    @model_validator(mode="before")
-    @classmethod
     def convert_values(cls, values):
         values = dict(values)
 
-        if isinstance(values.get("transaction_day"), date):
-            values["transaction_day"] = values["transaction_day"].isoformat()
-
         if "total_amount" in values and isinstance(values["total_amount"], (int, float, Decimal)):
             values["total_amount"] = float(values["total_amount"])
 
+        if "transaction_hour" in values:
+            values["transaction_period"] = int(values["transaction_hour"])
+        elif "transaction_day" in values:
+            if isinstance(values["transaction_day"], date):
+                values["transaction_period"] = values["transaction_day"].isoformat()
+            else:
+                values["transaction_period"] = values["transaction_day"]
+        elif "transaction_month" in values:
+            values["transaction_period"] = values["transaction_month"]
+
         return values
 
 
-class TransactionStatsByWeek(BaseModel):
-    week_range: str
-    data: List[TransactionStatsByDay]
+class TransactionStatsResponse(BaseModel):
+    period: str
+    data: List[TransactionStats]
 
 
-class TransactionStatsByDayInMonth(BaseModel):
-    type: str = Field(..., alias="category_type")
-    amount: float = Field(..., alias="total_amount")
-    day: str = Field(..., alias="transaction_day")
-
-    @model_validator(mode="before")
-    @classmethod
-    def convert_date_to_str(cls, values):
-        values = dict(values)  # <- делаем копию, т.к. RowMapping неизменяемый
-        if isinstance(values.get("transaction_day"), date):
-            values["transaction_day"] = values["transaction_day"].isoformat()
-        return values
-
-
-class TransactionStatsByMonth(BaseModel):
-    month: str
-    data: List[TransactionStatsByDayInMonth]
-
-
-class TransactionStatsByMonthInYear(BaseModel):
-    type: str = Field(..., alias="category_type")
-    amount: float = Field(..., alias="total_amount")
-    month: str = Field(..., alias="transaction_month")
+class TransactionReport(BaseModel):
+    total_income: float
+    total_expense: float
+    average_income: float
+    average_expense: float
+    median_income: float
+    median_expense: float
+    mode_income: Optional[float] = None
+    mode_expense: Optional[float] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -109,12 +71,22 @@ class TransactionStatsByMonthInYear(BaseModel):
         if "total_amount" in values and isinstance(values["total_amount"], (int, float, Decimal)):
             values["total_amount"] = float(values["total_amount"])
 
+        if "transaction_hour" in values:
+            values["transaction_period"] = int(values["transaction_hour"])
+        elif "transaction_day" in values:
+            if isinstance(values["transaction_day"], date):
+                values["transaction_period"] = values["transaction_day"].isoformat()
+            else:
+                values["transaction_period"] = values["transaction_day"]
+        elif "transaction_month" in values:
+            values["transaction_period"] = values["transaction_month"]
+
         return values
 
 
-class TransactionStatsByYear(BaseModel):
-    year: str
-    data: List[TransactionStatsByMonthInYear]
+class TransactionReportResponse(BaseModel):
+    period: str
+    data: List[TransactionReport]
 
 
 class TransactionStatsByCategory(BaseModel):
@@ -122,6 +94,28 @@ class TransactionStatsByCategory(BaseModel):
     total_amount: float = Field(..., alias="total_amount")
     count: int = Field(..., alias="count")
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    @model_validator(mode="before")
+    @classmethod
+    def convert_values(cls, values):
+        values = dict(values)
+
+        if "total_amount" in values and isinstance(values["total_amount"], (int, float, Decimal)):
+            values["total_amount"] = float(values["total_amount"])
+
+        if "transaction_day" in values and isinstance(values["transaction_day"], datetime):
+            values["transaction_period"] = values["transaction_day"].isoformat()
+        elif "transaction_hour" in values:
+            values["transaction_period"] = int(values["transaction_hour"])
+        elif "transaction_month" in values:
+            values["transaction_period"] = values["transaction_month"]
+        elif "transaction_year" in values:
+            values["transaction_period"] = values["transaction_year"]
+
+        return values
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TransactionStatsByCategoryResponse(BaseModel):
+    period: str
+    data: List[TransactionStatsByCategory]

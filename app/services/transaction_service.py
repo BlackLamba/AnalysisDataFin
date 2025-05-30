@@ -1,84 +1,140 @@
+import statistics
+from collections import Counter
+from decimal import Decimal
 from typing import Optional, List
 
+from fastapi import HTTPException
+from pydantic import UUID4
+
 from app.repositories import TransactionRepository
-from app.schemas.transaction_schema import TransactionStatsByCategory, \
-    TransactionStatsByHour, TransactionStatsByDay, TransactionStatsByWeek, TransactionStatsByMonth, \
-    TransactionStatsByYear
+from app.schemas.transaction_schema import (
+    TransactionStatsByCategory,
+    TransactionStats, TransactionReport, TransactionStatsByCategoryResponse, TransactionStatsResponse,
+    TransactionReportResponse
+)
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class TransactionService:
     def __init__(self, repository: TransactionRepository):
         self.repository = repository
 
-    async def get_stats_by_hour(
+    def _get_period(self, period: str, date: Optional[datetime] = None
+) -> str:
+        # Вычисляем период для заголовка
+        if period == "day":
+            period_label = date.date().isoformat() if date else datetime.utcnow().date().isoformat()
+        elif period == "week":
+            start = date - timedelta(days=date.weekday())
+            end = start + timedelta(days=6)
+            period_label = f"{start.date()} – {end.date()}"
+        elif period == "month":
+            date = date or datetime.utcnow()
+            period_label = f"{date.year}-{date.month:02d}"
+        elif period == "year":
+            date = date or datetime.utcnow()
+            period_label = str(date.year)
+        else:
+            period_label = period
+        return period_label
+
+    async def get_stats_by_period(
             self,
-            user_id: str,
+            user_id: UUID4,
+            period: str,
             date: Optional[datetime] = None
-    ) -> List[TransactionStatsByHour]:
-        """
-        Получает агрегированные данные по транзакциям за день, сгруппированные по часам и типу
-        """
-        data = await self.repository.get_stats_by_hour(user_id, date)
-        return [TransactionStatsByHour(**item) for item in data]
+    ) -> TransactionStatsResponse:
+        raw_data = await self.repository.get_stats_by_period(user_id, period, date)
 
-    async def get_income_by_hour(
+        # Если репозиторий не возвращает "period", получаем его из даты
+        if 'period' not in raw_data or raw_data['period'] is None:
+            raw_data['period'] = self._get_period(period, date)
+
+        return TransactionStatsResponse(**{
+            "period": raw_data["period"],
+            "data": raw_data["data"]
+        })
+
+    async def get_transactions_by_type_and_period(
             self,
-            user_id: str,
+            user_id: UUID4,
+            type: str,
+            period: str,
             date: Optional[datetime] = None
-    ) -> List[TransactionStatsByHour]:
-        """
-        Получает только доходы за день, сгруппированные по часам
-        """
-        all_data = await self.get_stats_by_hour(user_id, date)
-        return [item for item in all_data if item.type == "INCOME"]
+    ) -> TransactionStatsByCategoryResponse:
+        results = await self.repository.get_type_by_category(user_id, type.upper(), period, date)
+        period_label = self._get_period(period, date)
 
-    async def get_expenses_by_hour(
+        return TransactionStatsByCategoryResponse(**{
+            "period": period_label,
+            "data": [TransactionStatsByCategory(**item) for item in results]
+        })
+
+    @staticmethod
+    def calculate_stats(amounts: List[Decimal]) -> dict:
+        """Рассчитывает статистику по списку сумм"""
+        if not amounts:
+            return {
+                "total": 0.0,
+                "average": 0.0,
+                "median": 0.0,
+                "mode": None
+            }
+
+        amounts = list(map(float, amounts))
+        total = round(sum(amounts), 2)
+        average = round(statistics.mean(amounts), 2)
+
+        try:
+            median = round(statistics.median(amounts), 2)
+        except statistics.StatisticsError:
+            median = 0.0
+
+        try:
+            mode = round(statistics.mode(amounts), 2)
+        except statistics.StatisticsError:
+            mode = None
+
+        return {
+            "total": total,
+            "average": average,
+            "median": median,
+            "mode": mode
+        }
+
+    async def get_descriptive_stats_by_period(
             self,
-            user_id: str,
+            user_id: UUID4,
+            period: str,
             date: Optional[datetime] = None
-    ) -> List[TransactionStatsByHour]:
+    ) -> TransactionReportResponse:
         """
-        Получает только расходы за день, сгруппированные по часам
+        Получает данные за указанный период и возвращает описательную статистику
         """
-        all_data = await self.get_stats_by_hour(user_id, date)
-        return [item for item in all_data if item.type == "EXPENSE"]
+        raw_data = await self.repository.get_stats_by_period(user_id, period, date)
 
-    async def get_stats_by_week(
-            self,
-            user_id: str,
-            date: Optional[datetime] = None
-    ) -> TransactionStatsByWeek:
-        raw_data = await self.repository.get_stats_by_week(user_id, date)
-        return TransactionStatsByWeek(**raw_data)
+        # Если репозиторий не вернул "period", строим его
+        period_label = raw_data.get("period") or self._get_period(period, date)
 
-    async def get_stats_by_month(
-            self,
-            user_id: str,
-            date: Optional[datetime] = None
-    ) -> TransactionStatsByMonth:
-        raw_data = await self.repository.get_stats_by_month(user_id, date)
-        return TransactionStatsByMonth(**raw_data)
+        incomes = [item["total_amount"] for item in raw_data["data"] if item["category_type"] == "INCOME"]
+        expenses = [item["total_amount"] for item in raw_data["data"] if item["category_type"] == "EXPENSE"]
 
-    async def get_stats_by_year(
-            self,
-            user_id: str,
-            date: Optional[datetime] = None
-    ) -> TransactionStatsByYear:
-        raw_data = await self.repository.get_stats_by_year(user_id, date)
-        return TransactionStatsByYear(**raw_data)
+        income_stats = TransactionService.calculate_stats(incomes)
+        expense_stats = TransactionService.calculate_stats(expenses)
 
-    async def get_expenses_by_category(
-            self, user_id: str, period: str, date: Optional[datetime] = None
-    ) -> List[TransactionStatsByCategory]:
-        """Получить расходы по категориям"""
-        results = await self.repository.get_expenses_by_category(user_id, period, date)
-        return [TransactionStatsByCategory(**item) for item in results]
-
-    async def get_income_by_category(
-            self, user_id: str, period: str, date: Optional[datetime] = None
-    ) -> List[TransactionStatsByCategory]:
-        """Получить доходы по категориям"""
-        results = await self.repository.get_income_by_category(user_id, period, date)
-        return [TransactionStatsByCategory(**item) for item in results]
+        return TransactionReportResponse(**{
+            "period": period_label,
+            "data": [
+                TransactionReport(**{
+                    "total_income": income_stats["total"],
+                    "total_expense": expense_stats["total"],
+                    "average_income": income_stats["average"],
+                    "average_expense": expense_stats["average"],
+                    "median_income": income_stats["median"],
+                    "median_expense": expense_stats["median"],
+                    "mode_income": income_stats["mode"],
+                    "mode_expense": expense_stats["mode"]
+                })
+            ]
+        })
