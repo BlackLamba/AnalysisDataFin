@@ -27,19 +27,11 @@ AsyncSessionLocal = sessionmaker(
 )
 
 async def get_db() -> AsyncSession:
-    """
-    Генератор сессий для dependency injection.
-    Использование:
-    async with get_db() as db:
-        await db.execute(...)
-    """
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()
         except Exception as e:
-            await session.rollback()
-            logger.error(f"Database error: {e}")
+            logger.error(f"Error in get_db after service execution or during its own commit: {e}", exc_info=True)
             raise
         finally:
             await session.close()

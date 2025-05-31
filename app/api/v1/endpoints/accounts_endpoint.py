@@ -7,7 +7,7 @@ from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/accounts", tags=["accounts"]).router
 
-@router.post("/", response_model=BankAccount, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=BankAccount, status_code=status.HTTP_201_CREATED)
 async def create_account(
     account_data: BankAccountCreate,
     db: AsyncSession = Depends(get_db)

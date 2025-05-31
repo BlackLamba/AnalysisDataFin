@@ -7,7 +7,7 @@ from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/users", tags=["users"]).router
 
-@router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_data: UserCreate,
     db: AsyncSession = Depends(get_db)

@@ -7,7 +7,7 @@ from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/recurrent-payments", tags=["recurrent_payments"]).router
 
-@router.post("/", response_model=RecurringPayment, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=RecurringPayment, status_code=status.HTTP_201_CREATED)
 async def create_recurrent_payment(
     payment_data: RecurringPaymentCreate,
     db: AsyncSession = Depends(get_db)

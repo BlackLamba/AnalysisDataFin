@@ -7,7 +7,7 @@ from .base_endpoint import BaseRouter
 
 router = BaseRouter(prefix="/categories", tags=["categories"]).router
 
-@router.post("/", response_model=Category, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=Category, status_code=status.HTTP_201_CREATED)
 async def create_category(
     category_data: CategoryCreate,
     db: AsyncSession = Depends(get_db)

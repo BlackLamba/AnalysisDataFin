@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api import api_router
-from app.core.database import engine, Base
+from app.core.database import engine, Base, init_db, close_db
 import logging
+from app import models
 
 logger = logging.getLogger(__name__)
 
@@ -35,20 +36,19 @@ def create_application() -> FastAPI:
 
     # События жизненного цикла
     @app.on_event("startup")
-    async def startup_event():
-        logger.info("Starting up...")
-        # Создание таблиц (только для разработки!)
-        if settings.DEBUG:
-            async with engine.begin() as conn:
-                await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables initialized")
+    async def on_startup():
+        logger.info("Application startup...")
+        # Для отладки можно вывести здесь
+        logger.info(f"Tables known to Base before init_db: {Base.metadata.tables.keys()}")
+        await init_db()
+        logger.info(f"Tables known to Base after init_db: {Base.metadata.tables.keys()}")  # Должны появиться таблицы
+        logger.info("Database initialized.")
 
     @app.on_event("shutdown")
     async def shutdown_event():
         logger.info("Shutting down...")
         await engine.dispose()
         logger.info("Database connections closed")
-
     return app
 
 # Создание экземпляра приложения

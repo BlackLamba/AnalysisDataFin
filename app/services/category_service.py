@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.category import Category as CategoryModel
+from app.models.category import Category
 from app.schemas.category_schema import CategoryCreate
 import uuid
 
@@ -10,13 +10,11 @@ class CategoryService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create(self, category_data: CategoryCreate) -> CategoryModel:
+    async def create(self, category_data: CategoryCreate) -> Category:
         try:
-            new_category = CategoryModel(
+            new_category = Category(
                 CategoryID=uuid.uuid4(),
-                ParentID=category_data.parent_id,
-                Name=category_data.name,
-                type=category_data.type,
+                Type=category_data.type.value,
                 Category=category_data.category
             )
             self.db.add(new_category)
@@ -27,10 +25,10 @@ class CategoryService:
             await self.db.rollback()
             raise e
 
-    async def get(self, category_id: str) -> CategoryModel | None:
+    async def get(self, category_id: str) -> Category | None:
         try:
             result = await self.db.execute(
-                select(CategoryModel).where(CategoryModel.CategoryID == category_id)
+                select(Category).where(Category.CategoryID == category_id)
             )
             return result.scalar_one_or_none()
         except SQLAlchemyError as e:

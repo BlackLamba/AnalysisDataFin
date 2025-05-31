@@ -9,7 +9,7 @@ from typing import Optional
 
 class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
     async def get_by_email(self, db: AsyncSession, email: str) -> Optional[User]:
-        result = await db.execute(select(User).where(User.email == email))
+        result = await db.execute(select(User).where(User.Email == email))
         return result.scalars().first()
 
     async def authenticate(
