@@ -45,8 +45,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Круговая диаграмма: Распределение по категориям
-  const pieCtx = document.getElementById("pieChart").getContext("2d");
-  new Chart(pieCtx, {
+const pieCtx = document.getElementById("pieChart").getContext("2d");
+new Chart(pieCtx, {
     type: "pie",
     data: {
       labels: ["Еда", "Транспорт", "Жильё", "Развлечения", "Прочее"],
@@ -72,3 +72,110 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 });
+
+const ctx = document.getElementById('incomeExpensesChart').getContext('2d');
+const incomeExpensesChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
+    datasets: [
+      {
+        label: 'Доходы',
+        data: [50000, 52000, 48000, 53000, 55000, 57000],
+        backgroundColor: 'rgba(96, 165, 250, 0.7)',  // Цвет как в линейной (голубой с прозрачностью)
+        borderColor: '#60a5fa',
+        borderWidth: 1,
+      },
+      {
+        label: 'Расходы',
+        data: [20000, 21000, 19000, 22000, 21000, 23000],
+        backgroundColor: 'rgba(248, 113, 113, 0.7)', // Красный с прозрачностью
+        borderColor: '#f87171',
+        borderWidth: 1,
+      },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: { color: "#f0f0f0" } // цвет легенды
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: "#9ca3af" }, // цвет подписей по X
+        grid: { color: "#2a2a2a" },  // цвет сетки по X
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 5000,
+          color: "#9ca3af",
+          callback: function(value) {
+            return '₽' + value;
+          }
+        },
+        grid: { color: "#2a2a2a" } // цвет сетки по Y
+      }
+    }
+  }
+});
+
+// Столбчатая категорий
+const categories = ["Еда", "Транспорт", "Жильё", "Развлечения", "Прочее"];
+const data = [2500, 1200, 4000, 1800, 1500];
+const colors = ["#34d399", "#60a5fa", "#f87171", "#facc15", "#a78bfa"];
+
+const datasets = categories.map((cat, i) => ({
+  label: cat,
+  data: data.map((_, idx) => (idx === i ? data[i] : 0)), // показываем только значение для этого датасета
+  backgroundColor: colors[i],
+  borderWidth: 1,
+}));
+
+const barCtx = document.getElementById("categoryBarChart").getContext("2d");
+new Chart(barCtx, {
+  type: "bar",
+  data: {
+    labels: ["Еда", "Транспорт", "Жильё", "Развлечения", "Прочее"],
+    datasets: [
+      {
+        label: "Расходы по категориям",
+        data: [2500, 1200, 4000, 1800, 1500],
+        backgroundColor: [
+          "#34d399",
+          "#60a5fa",
+          "#f87171",
+          "#facc15",
+          "#a78bfa"
+        ],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    indexAxis: 'y', // вот это переключает оси: категории по Y, значения по X
+    responsive: true,
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: {
+          callback: value => '₽' + value
+        }
+      },
+      y: {
+        ticks: {
+          color: "#f0f0f0"
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: "#f0f0f0" },
+      },
+    },
+  },
+});
+
+

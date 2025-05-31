@@ -9,13 +9,19 @@
 <body>
   <div class="dashboard">
     <aside class="sidebar">
-      <h2 class="logo">Finomic</h2>
+      <h2>
+        <a href="index.html" class="logo">
+          <img src="../images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
       <nav>
         <ul>
-          <li>Сводка</li>
-          <li>Аналитика</li>
-          <li class="active">Операции</li>
-          <li>Настройки</li>
+          <li><a href="dashboard.html">Сводка</a></li>
+          <li><a href="analytics.html">Аналитика</a></li>
+          <li><a href="input.html">Операции</a></li>
+          <li><a href="settings.html">Настройки</a></li>
+          <li><a href="index.html">Создатели</a></li>
         </ul>
       </nav>
     </aside>
@@ -33,9 +39,9 @@
           </label>
 
           <label>
-            Категория:
+            Вид финансовой операции:
             <select required>
-              <option value="">Выберите категорию</option>
+              <option value="">Выберите вид финансовой операции</option>
               <option value="income">Доход</option>
               <option value="expense">Расход</option>
             </select>
@@ -47,8 +53,16 @@
           </label>
 
           <label>
-            Комментарий:
-            <input type="text" placeholder="Например, зарплата или еда" />
+            Категория:
+            <select required>
+              <option value="">Выберите категорию</option>
+              <option value="salary">Зарплата</option>
+              <option value="rent">Аренда</option>
+              <option value="products">Продукты</option>
+              <option value="enjoy">Развлечения</option>
+              <option value="cars">Транспорт</option>
+              <option value="others">Прочие расходы</option>
+            </select>
           </label>
 
           <button type="submit">Добавить</button>
@@ -57,5 +71,12 @@
     </main>
   </div>
   <script src="../dynamic/navHighlight.js"></script>
+  <footer class="mobile-footer">
+    <a href="dashboard.html" class="footer-link"><img src="../images/dashboard.svg"/><br><span>Сводка</span></a>
+    <a href="analytics.html" class="footer-link"><img src="../images/analytics.svg"/><br><span>Аналитика</span></a>
+    <a href="input.html" class="footer-link"><img src="../images/input.svg"/><br><span>Добавить</span></a>
+    <a href="settings.html" class="footer-link"><img src="../images/settings.svg"/><br><span>Настройки</span></a>
+    <a href="index.html" class="footer-link"><img src="../images/index.svg"/><br><span>Главная</span></a>
+  </footer>
 </body>
 </html>
