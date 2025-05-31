@@ -6,38 +6,40 @@ from typing import Optional, List
 from fastapi import HTTPException
 from pydantic import UUID4
 
+from app.models import Transaction
 from app.repositories import TransactionRepository
 from app.schemas.transaction_schema import (
     TransactionStatsByCategory,
     TransactionStats, TransactionReport, TransactionStatsByCategoryResponse, TransactionStatsResponse,
-    TransactionReportResponse
+    TransactionReportResponse, TransactionCreateRequest, TransactionResponse
 )
 import uuid
 from datetime import datetime, timedelta
 
 
+def _get_period(period: str, date: Optional[datetime] = None
+                ) -> str:
+    # Вычисляем период для заголовка
+    if period == "day":
+        period_label = date.date().isoformat() if date else datetime.utcnow().date().isoformat()
+    elif period == "week":
+        start = date - timedelta(days=date.weekday())
+        end = start + timedelta(days=6)
+        period_label = f"{start.date()} – {end.date()}"
+    elif period == "month":
+        date = date or datetime.utcnow()
+        period_label = f"{date.year}-{date.month:02d}"
+    elif period == "year":
+        date = date or datetime.utcnow()
+        period_label = str(date.year)
+    else:
+        period_label = period
+    return period_label
+
+
 class TransactionService:
     def __init__(self, repository: TransactionRepository):
         self.repository = repository
-
-    def _get_period(self, period: str, date: Optional[datetime] = None
-) -> str:
-        # Вычисляем период для заголовка
-        if period == "day":
-            period_label = date.date().isoformat() if date else datetime.utcnow().date().isoformat()
-        elif period == "week":
-            start = date - timedelta(days=date.weekday())
-            end = start + timedelta(days=6)
-            period_label = f"{start.date()} – {end.date()}"
-        elif period == "month":
-            date = date or datetime.utcnow()
-            period_label = f"{date.year}-{date.month:02d}"
-        elif period == "year":
-            date = date or datetime.utcnow()
-            period_label = str(date.year)
-        else:
-            period_label = period
-        return period_label
 
     async def get_stats_by_period(
             self,
@@ -49,7 +51,7 @@ class TransactionService:
 
         # Если репозиторий не возвращает "period", получаем его из даты
         if 'period' not in raw_data or raw_data['period'] is None:
-            raw_data['period'] = self._get_period(period, date)
+            raw_data['period'] = _get_period(period, date)
 
         return TransactionStatsResponse(**{
             "period": raw_data["period"],
@@ -64,7 +66,7 @@ class TransactionService:
             date: Optional[datetime] = None
     ) -> TransactionStatsByCategoryResponse:
         results = await self.repository.get_type_by_category(user_id, type.upper(), period, date)
-        period_label = self._get_period(period, date)
+        period_label = _get_period(period, date)
 
         return TransactionStatsByCategoryResponse(**{
             "period": period_label,
@@ -115,7 +117,7 @@ class TransactionService:
         raw_data = await self.repository.get_stats_by_period(user_id, period, date)
 
         # Если репозиторий не вернул "period", строим его
-        period_label = raw_data.get("period") or self._get_period(period, date)
+        period_label = raw_data.get("period") or _get_period(period, date)
 
         incomes = [item["total_amount"] for item in raw_data["data"] if item["category_type"] == "INCOME"]
         expenses = [item["total_amount"] for item in raw_data["data"] if item["category_type"] == "EXPENSE"]
@@ -138,3 +140,31 @@ class TransactionService:
                 })
             ]
         })
+
+    async def create_transaction(self, user_id: UUID4, data: TransactionCreateRequest) -> TransactionResponse:
+        try:
+            category_id = await self.repository.get_category_id_by_type_and_name(
+                data.type,
+                data.category_name
+            )
+            if not category_id:
+                raise HTTPException(status_code=404, detail="Category not found")
+
+            transaction = await self.repository.create(
+                user_id=user_id,
+                category_id=category_id,
+                amount=data.amount,
+                description=data.description,
+                transaction_date=data.transaction_date
+            )
+
+            return TransactionResponse.from_orm_with_category(transaction)
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_transaction(self, user_id: UUID4, transaction_id: UUID4) -> Optional[TransactionResponse]:
+        transaction = await self.repository.get_by_id(user_id, transaction_id)
+        if not transaction:
+            return None
+        return TransactionResponse.model_validate(transaction)

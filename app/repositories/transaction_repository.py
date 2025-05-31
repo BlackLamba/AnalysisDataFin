@@ -1,16 +1,21 @@
 import uuid
 
+from fastapi import HTTPException
 from pydantic import UUID4
 from sqlalchemy import select, func, and_, extract, RowMapping, Integer, cast
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from typing import Optional, Any, Mapping, Sequence, List
+
+from sqlalchemy.orm import joinedload
+
 from app.models import Transaction, Category
-from app.schemas import TransactionCreate
 
 from typing import List
 from sqlalchemy.sql.elements import BinaryExpression
+
+from app.schemas.transaction_schema import TransactionCreateRequest
 
 
 class TransactionRepository:
@@ -255,33 +260,69 @@ class TransactionRepository:
         else:
             raise ValueError(f"Unknown period: {period}")
 
-    async def create(self, user_id: UUID4, transaction_data: TransactionCreate) -> Transaction:
+    async def get_category_id_by_type_and_name(self, category_type: str, category_name: str) -> Optional[UUID4]:
+        """
+        Получает CategoryID по Type и Category
+        """
         try:
-            new_transaction = Transaction(
-                TransactionID=uuid.uuid4(),
-                UserID=user_id,
-                CategoryID=transaction_data.category_id,
-                AccountID=transaction_data.account_id,
-                Amount=transaction_data.amount,
-                Description=transaction_data.description,
-                TransactionDate=transaction_data.transaction_date or datetime.utcnow(),
+            query = (
+                select(Category.CategoryID)
+                .where(
+                    Category.Type == category_type.upper(),
+                    Category.Category.ilike(category_name)
+                )
             )
-            self.db.add(new_transaction)
-            await self.db.commit()
-            await self.db.refresh(new_transaction)
-            return new_transaction
+            result = await self.db.execute(query)
+            return result.scalar_one_or_none()
         except SQLAlchemyError as e:
-            await self.db.rollback()
-            raise e
+            raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
     async def get_by_id(self, user_id: UUID4, transaction_id: UUID4) -> Optional[Transaction]:
         try:
-            result = await self.db.execute(
-                select(Transaction).where(
+            # Добавляем joinedload для загрузки связанной категории
+            query = (
+                select(Transaction)
+                .options(joinedload(Transaction.category))
+                .where(
                     Transaction.TransactionID == transaction_id,
-                    Transaction.UserID == user_id  # <-- Добавили фильтр по user_id
+                    Transaction.UserID == user_id
                 )
             )
-            return result.scalar_one_or_none()
+            result = await self.db.execute(query)
+            transaction = result.unique().scalar_one_or_none()
+
+            if transaction is None:
+                return None
+
+            return transaction
+
         except SQLAlchemyError as e:
-            raise e
+            raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+    # Репозиторий
+    async def create(self, user_id: UUID4, category_id: UUID4, amount: float,
+                     description: Optional[str], transaction_date: Optional[datetime]) -> Transaction:
+        try:
+            new_transaction = Transaction(
+                UserID=user_id,
+                CategoryID=category_id,
+                Amount=amount,
+                Description=description,
+                TransactionDate=transaction_date or datetime.utcnow()
+            )
+
+            self.db.add(new_transaction)
+            await self.db.commit()
+
+            # Загружаем транзакцию вместе с категорией одним запросом
+            query = (
+                select(Transaction)
+                .options(joinedload(Transaction.category))
+                .where(Transaction.TransactionID == new_transaction.TransactionID)
+            )
+            result = await self.db.execute(query)
+            return result.unique().scalar_one()
+
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

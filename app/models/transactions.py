@@ -10,7 +10,6 @@ class Transaction(Base):
 
     TransactionID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     UserID = Column(UUID(as_uuid=True), ForeignKey("users.UserID"), nullable=False)
-    AccountID = Column(UUID(as_uuid=True), ForeignKey("bank_accounts.AccountID"), nullable=False, index=True)
     CategoryID = Column(UUID(as_uuid=True), ForeignKey("categories.CategoryID"), nullable=False, index=True)
     Amount = Column(Numeric(15, 2), nullable=False)
     Description = Column(String(255))
@@ -19,4 +18,3 @@ class Transaction(Base):
     # Связи
     user = relationship("User", back_populates="transactions")
     category = relationship("Category", back_populates="transactions")
-    account = relationship("BankAccount", back_populates="transactions")

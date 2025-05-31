@@ -4,11 +4,12 @@ from typing import Optional, List
 from fastapi import Depends, HTTPException, Query, Path
 from pydantic import UUID4
 from app.schemas.transaction_schema import (
-    TransactionCreate, Transaction, TransactionReportResponse,
-    TransactionStatsResponse, TransactionStatsByCategoryResponse
+    TransactionReportResponse,
+    TransactionStatsResponse, TransactionStatsByCategoryResponse,
+    TransactionResponse, TransactionCreateRequest
 )
 from app.repositories.transaction_repository import TransactionRepository
-from app.dependencies import get_transaction_repo
+from app.dependencies import get_transaction_repo, get_transaction_service
 from .deps import get_current_user_id
 from .base_endpoint import BaseRouter
 from app.services.transaction_service import TransactionService
@@ -16,22 +17,21 @@ from app.services.transaction_service import TransactionService
 router = BaseRouter(prefix="/transactions", tags=["transactions"]).router
 
 
-@router.post("", response_model=Transaction, status_code=201)
+@router.post("", response_model=TransactionResponse, status_code=201)
 async def create_transaction(
-    transaction_data: TransactionCreate,
+    transaction_data: TransactionCreateRequest,
     user_id: UUID4 = Depends(get_current_user_id),
-    repo: TransactionRepository = Depends(get_transaction_repo)
+    service: TransactionService = Depends(get_transaction_service)
 ):
-    return await repo.create(user_id, transaction_data)
+    return await service.create_transaction(user_id, transaction_data)
 
-
-@router.get("/{transaction_id}", response_model=Transaction)
+@router.get("/{transaction_id}", response_model=TransactionResponse)
 async def read_transaction(
     transaction_id: UUID4,
     user_id: UUID4 = Depends(get_current_user_id),
-    repo: TransactionRepository = Depends(get_transaction_repo)
+    service: TransactionService = Depends(get_transaction_service)
 ):
-    transaction = await repo.get_by_id(user_id, transaction_id)
+    transaction = await service.get_transaction(user_id, transaction_id)
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return transaction

@@ -2,26 +2,56 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field, ConfigDict, UUID4, model_validator
 from typing import Optional, List, Union
-from uuid import UUID
 from datetime import datetime, date
 
-
-class TransactionCreate(BaseModel):
-    user_id: UUID4 = Field(..., alias="UserID")
-    category_id: UUID4 = Field(..., alias="CategoryID")
-    amount: float = Field(..., alias="Amount")
-    account_id: UUID4 = Field(..., alias="AccountID")
-    description: Optional[str] = Field(None, max_length=255, alias="Description")
-    transaction_date: Optional[datetime] = Field(None, alias="TransactionDate")  # можно не передавать
+from app.models import Transaction
 
 
-class Transaction(TransactionCreate):
+# Схема
+class TransactionResponse(BaseModel):
     transaction_id: UUID4 = Field(..., alias="TransactionID")
+    amount: float = Field(..., alias="Amount")
+    description: Optional[str] = Field(None, alias="Description")
+    transaction_date: datetime = Field(..., alias="TransactionDate")
+    type: str
+    category_name: str
 
     model_config = ConfigDict(
-        from_attributes=True
+        from_attributes=True,
+        populate_by_name=True
     )
 
+    @classmethod
+    def from_orm_with_category(cls, transaction: Transaction) -> "TransactionResponse":
+        return cls(
+            TransactionID=transaction.TransactionID,
+            Amount=transaction.Amount,
+            Description=transaction.Description,
+            TransactionDate=transaction.TransactionDate,
+            type=transaction.category.Type,
+            category_name=transaction.category.Category
+        )
+
+
+class TransactionCreateRequest(BaseModel):
+    amount: float = Field(..., alias="Amount", gt=0)
+    description: Optional[str] = Field(None, alias="Description", max_length=255)
+    transaction_date: Optional[datetime] = Field(None, alias="TransactionDate")
+    type: str = Field(..., alias="Type", pattern="^(INCOME|EXPENSE)$")
+    category_name: str = Field(..., alias="category_name", min_length=1, max_length=50)
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
+            "example": {
+                "Amount": 1500.0,
+                "Description": "Зашел за таблетками",
+                "TransactionDate": "2025-06-02T14:00:00",
+                "Type": "EXPENSE",
+                "category_name": "Аптеки"
+            }
+        }
+    )
 
 class TransactionStats(BaseModel):
     type: str = Field(..., alias="category_type")

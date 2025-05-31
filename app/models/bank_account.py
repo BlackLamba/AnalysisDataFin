@@ -18,7 +18,6 @@ class BankAccount(Base):
 
     # Relationships
     user = relationship("User", back_populates="accounts")
-    transactions = relationship("Transaction", back_populates="account")
     recurring_payments = relationship("RecurringPayment", back_populates="account")
 
     __table_args__ = (

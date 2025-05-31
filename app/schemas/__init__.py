@@ -1,7 +1,7 @@
 from .user_schema import User, UserCreate
 from .category_schema import Category, CategoryCreate
 from .bank_account_schema import BankAccount, BankAccountCreate
-from .transaction_schema import Transaction, TransactionCreate
+#from .transaction_schema import Transaction, TransactionCreate
 from .budget_schema import Budget, BudgetCreate
 from .savings_goal_schema import SavingsGoal, SavingsGoalCreate
 from .recurring_payment_schema import RecurringPayment, RecurringPaymentCreate
@@ -11,7 +11,7 @@ __all__ = [
     "User", "UserCreate",
     "Category", "CategoryCreate",
     "BankAccount", "BankAccountCreate",
-    "Transaction", "TransactionCreate",
+    #"Transaction", "TransactionCreate",
     "Budget", "BudgetCreate",
     "SavingsGoal", "SavingsGoalCreate",
     "RecurringPayment", "RecurringPaymentCreate",
