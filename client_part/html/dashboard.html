@@ -10,13 +10,19 @@
   <div class="dashboard">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h2 class="logo">Finomic</h2>
+      <h2>
+        <a href="index.html" class="logo">
+          <img src="../images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
       <nav>
         <ul>
-          <li class="active">Сводка</li>
-          <li>Аналитика</li>
-          <li>Операции</li>
-          <li>Настройки</li>
+          <li><a href="dashboard.html">Сводка</a></li>
+          <li><a href="analytics.html">Аналитика</a></li>
+          <li><a href="input.html">Операции</a></li>
+          <li><a href="settings.html">Настройки</a></li>
+          <li><a href="index.html">Создатели</a></li>
         </ul>
       </nav>
     </aside>
@@ -46,10 +52,29 @@
         <h2>График расходов</h2>
         <canvas id="expensesChart"></canvas>
       </section>
+
+      <section class="cards">
+        <div class="card statistics">
+          <h3>Основные статистические показатели</h3>
+          <p>Средний доход: <span id="avgIncome">–</span></p>
+          <p>Средний расход: <span id="avgExpense">–</span></p>
+          <p>Медиана дохода: <span id="medianIncome">–</span></p>
+          <p>Медиана расхода: <span id="medianExpense">–</span></p>
+          <p>Мода дохода: <span id="modeIncome">–</span></p>
+          <p>Мода расхода: <span id="modeExpense">–</span></p>
+        </div>
+      </section>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../dynamic/expensesChart.js"></script>
   <script src="../dynamic/navHighlight.js"></script>
+  <footer class="mobile-footer">
+    <a href="dashboard.html" class="footer-link"><img src="../images/dashboard.svg"/><br><span>Сводка</span></a>
+    <a href="analytics.html" class="footer-link"><img src="../images/analytics.svg"/><br><span>Аналитика</span></a>
+    <a href="input.html" class="footer-link"><img src="../images/input.svg"/><br><span>Добавить</span></a>
+    <a href="settings.html" class="footer-link"><img src="../images/settings.svg"/><br><span>Настройки</span></a>
+    <a href="index.html" class="footer-link"><img src="../images/index.svg"/><br><span>Главная</span></a>
+  </footer>
 </body>
 </html>

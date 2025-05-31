@@ -9,13 +9,19 @@
 <body>
   <div class="dashboard">
     <aside class="sidebar">
-      <h2 class="logo">Finomic</h2>
+      <h2>
+        <a href="index.html" class="logo">
+          <img src="../images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
       <nav>
         <ul>
-          <li>Сводка</li>
-          <li class="active">Аналитика</li>
-          <li>Операции</li>
-          <li>Настройки</li>
+          <li><a href="dashboard.html">Сводка</a></li>
+          <li><a href="analytics.html">Аналитика</a></li>
+          <li><a href="input.html">Операции</a></li>
+          <li><a href="settings.html">Настройки</a></li>
+          <li><a href="index.html">Создатели</a></li>
         </ul>
       </nav>
     </aside>
@@ -28,17 +34,22 @@
       <section class="filters">
         <form class="filter-form">
           <label>
-            От:
+            Дата:
             <input type="date" />
           </label>
 
           <label>
-            До:
-            <input type="date" />
+            Период:
+            <select>
+              <option value="day">1 день</option>
+              <option value="week">Неделя</option>
+              <option value="month">Месяц</option>
+              <option value="year">Год</option>
+            </select>
           </label>
 
           <label>
-            Категория:
+            Тип операции:
             <select>
               <option value="">Все</option>
               <option value="income">Доход</option>
@@ -51,20 +62,35 @@
       </section>
 
       <section class="graph">
-        <h2>Доходы и расходы по дням</h2>
+        <h2>Линейный график расходов и доходов</h2>
         <canvas id="lineChart"></canvas>
       </section>
 
       <section class="graph">
-        <h2>Распределение по категориям</h2>
+        <h2>Столбчатая диаграмма расходов и доходов</h2>
+        <canvas id="incomeExpensesChart" width="600" height="300"></canvas>
+      </section>
+
+      <section class="graph">
+        <h2>Круговая диаграмма распределения по категориям</h2>
         <canvas id="pieChart"></canvas>
+      </section>
+
+      <section class="graph">
+        <h2>Cтолбчатая диаграмма распределения по категориям</h2>
+        <canvas id="categoryBarChart" width="600" height="400"></canvas>
       </section>
     </main>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../dynamic/analyticsCharts.js"></script>
   <script src="../dynamic/navHighlight.js"></script>
-
+  <footer class="mobile-footer">
+    <a href="dashboard.html" class="footer-link"><img src="../images/dashboard.svg"/><br><span>Сводка</span></a>
+    <a href="analytics.html" class="footer-link"><img src="../images/analytics.svg"/><br><span>Аналитика</span></a>
+    <a href="input.html" class="footer-link"><img src="../images/input.svg"/><br><span>Добавить</span></a>
+    <a href="settings.html" class="footer-link"><img src="../images/settings.svg"/><br><span>Настройки</span></a>
+    <a href="index.html" class="footer-link"><img src="../images/index.svg"/><br><span>Главная</span></a>
+  </footer>
 </body>
 </html>
