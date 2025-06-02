@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Аналитика — Finomic</title>
+  <link rel="stylesheet" href="../static/css/main.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2>
+        <a href="/" class="logo">
+          <img src="../static/images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
+      <nav>
+        <ul>
+          <li><a href="/dashboard">Сводка</a></li>
+          <li><a href="/analytics">Аналитика</a></li>
+          <li><a href="/input">Операции</a></li>
+          <li><a href="/settings">Настройки</a></li>
+          <li><a href="/">Создатели</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Аналитика</h1>
+      </header>
+
+      <section class="filters">
+        <form class="filter-form">
+          <label>
+            Дата:
+            <input type="date" />
+          </label>
+
+          <label>
+            Период:
+            <select>
+              <option value="day">1 день</option>
+              <option value="week">Неделя</option>
+              <option value="month">Месяц</option>
+              <option value="year">Год</option>
+            </select>
+          </label>
+
+          <label>
+            Тип операции:
+            <select>
+              <option value="">Все</option>
+              <option value="income">Доход</option>
+              <option value="expense">Расход</option>
+            </select>
+          </label>
+
+          <button type="submit">Применить</button>
+        </form>
+      </section>
+
+      <section class="graph">
+        <h2>Линейный график расходов и доходов</h2>
+        <canvas id="lineChart"></canvas>
+      </section>
+
+      <section class="graph">
+        <h2>Столбчатая диаграмма расходов и доходов</h2>
+        <canvas id="incomeExpensesChart" width="600" height="300"></canvas>
+      </section>
+
+      <section class="graph">
+        <h2>Круговая диаграмма распределения по категориям</h2>
+        <canvas id="pieChart"></canvas>
+      </section>
+
+      <section class="graph">
+        <h2>Cтолбчатая диаграмма распределения по категориям</h2>
+        <canvas id="categoryBarChart" width="600" height="400"></canvas>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../static/dynamic/analyticsCharts.js"></script>
+  <script src="../static/dynamic/navHighlight.js"></script>
+  <footer class="mobile-footer">
+    <a href="/dashboard" class="footer-link"><img src="../static/images/dashboard.svg"/><br><span>Сводка</span></a>
+    <a href="/analytics" class="footer-link"><img src="../static/images/analytics.svg"/><br><span>Аналитика</span></a>
+    <a href="/input" class="footer-link"><img src="../static/images/input.svg"/><br><span>Добавить</span></a>
+    <a href="/settings" class="footer-link"><img src="../static/images/settings.svg"/><br><span>Настройки</span></a>
+    <a href="/" class="footer-link"><img src="../static/images/index.svg"/><br><span>Главная</span></a>
+  </footer>
+</body>
+</html>

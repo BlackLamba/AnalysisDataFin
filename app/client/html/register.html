@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Регистрация</title>
+  <link rel="stylesheet" href="../static/css/login.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h1>Регистрация</h1>
+    <form id="registerForm">
+      <label for="first_name">Имя</label>
+      <input type="text" id="first_name" name="first_name" required autocomplete="first_name" />
+
+      <label for="last_name">Фамилия</label>
+      <input type="text" id="last_name" name="last_name" required autocomplete="last_name" />
+
+      <label for="father_name">Отчество (если есть)</label>
+      <input type="text" id="father_name" name="father_name" required autocomplete="father_name" />
+
+      <label for="passport_number">Номер паспорта</label>
+      <input type="text" id="passport_number" name="passport_number" required autocomplete="passport_number" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required autocomplete="email" />
+
+      <label for="password">Пароль</label>
+      <input type="password" id="password" name="password" required autocomplete="new-password" />
+
+      <label for="confirmPassword">Подтвердите пароль</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" />
+
+      <button type="submit">Зарегистрироваться</button>
+    </form>
+    <div class="footer-text">
+      Уже есть аккаунт? <a href="/login">Войти</a>
+    </div>
+  </div>
+  <script src="../static/dynamic/register.js"></script>
+</body>
+</html>
