@@ -20,8 +20,8 @@ class TransactionService:
     def __init__(self, repository: TransactionRepository):
         self.repository = repository
 
-    def _get_period(self, period: str, date: Optional[datetime] = None
-) -> str:
+    def _get_period(self, period: str, date: Optional[datetime] = None) -> str:
+        date = date or datetime.utcnow()
         # Вычисляем период для заголовка
         if period == "day":
             period_label = date.date().isoformat() if date else datetime.utcnow().date().isoformat()

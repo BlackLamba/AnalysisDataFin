@@ -17,7 +17,7 @@ class User(BaseModel):
     last_name: str = Field(alias="LastName")  # Если в модели User.LastName
     first_name: str = Field(alias="FirstName")
     middle_name: str | None = Field(default=None, alias="MiddleName")
-    passport_number: str = Field(alias="PassportNumber")
+    passport_number: Optional[str] = Field(default=None, alias="PassportNumber")
     email: EmailStr = Field(alias="Email")
     registration_date: datetime = Field(alias="RegistrationDate")
 

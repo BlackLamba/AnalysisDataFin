@@ -2,9 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.category import Category
-from app.schemas.category_schema import CategoryCreate
+from app.schemas.category_schema import CategoryCreate, Category as CategorySchema
 import uuid
 
+from typing import List
 
 class CategoryService:
     def __init__(self, db: AsyncSession):
@@ -31,5 +32,13 @@ class CategoryService:
                 select(Category).where(Category.CategoryID == category_id)
             )
             return result.scalar_one_or_none()
+        except SQLAlchemyError as e:
+            raise e
+
+    async def get_all(self) -> List[CategorySchema]:
+        try:
+            result = await self.db.execute(select(Category))
+            categories = result.scalars().all()
+            return [CategorySchema.model_validate(cat) for cat in categories]
         except SQLAlchemyError as e:
             raise e

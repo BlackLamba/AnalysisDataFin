@@ -10,7 +10,7 @@ class TransactionCreate(BaseModel):
     user_id: UUID4 = Field(..., alias="UserID")
     category_id: UUID4 = Field(..., alias="CategoryID")
     amount: float = Field(..., alias="Amount")
-    account_id: UUID4 = Field(..., alias="AccountID")
+    account_id: Optional[UUID4] = Field(None, alias="AccountID")
     description: Optional[str] = Field(None, max_length=255, alias="Description")
     transaction_date: Optional[datetime] = Field(None, alias="TransactionDate")  # можно не передавать
 

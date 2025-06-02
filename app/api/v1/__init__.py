@@ -7,7 +7,7 @@ from app.api.v1.endpoints import (
     accounts_endpoint,
     budgets_endpoint,
     goals_endpoint,
-    recurrent_payments_endpoint
+    recurrent_payments_endpoint,
 )
 
 router = APIRouter()
