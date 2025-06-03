@@ -66,11 +66,17 @@
           </ul>
         </div>
       </section>
+      <section class="graph">
+        <button id="exportPdfBtn">Скачать отчет в PDF</button>
+      </section>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../static/dynamic/expensesChart.js"></script>
   <script src="../static/dynamic/navHighlight.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="../static/dynamic/exportPdfDash.js"></script>
   <footer class="mobile-footer">
     <a href="/dashboard" class="footer-link"><img src="../static/images/dashboard.svg"/><br><span>Сводка</span></a>
     <a href="/analytics" class="footer-link"><img src="../static/images/analytics.svg"/><br><span>Аналитика</span></a>
