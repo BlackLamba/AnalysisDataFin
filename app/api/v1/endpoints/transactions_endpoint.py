@@ -24,6 +24,13 @@ async def create_transaction(
 ):
     return await repo.create(user_id, transaction_data)
 
+@router.get("", response_model=List[Transaction])
+async def get_user_transactions(
+    user_id: UUID4 = Depends(get_current_user_id),
+    repo: TransactionRepository = Depends(get_transaction_repo)
+):
+    return await repo.get_all_for_user(user_id)
+
 
 @router.get("/{transaction_id}", response_model=Transaction)
 async def read_transaction(

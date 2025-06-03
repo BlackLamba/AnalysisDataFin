@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ввод данных — Finomic</title>
+  <link rel="stylesheet" href="../static/css/main.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2>
+        <a href="/" class="logo">
+          <img src="../static/images/target-svgrepo-com.svg" alt="Finomic" class="logo-img" />
+          <span class="logo-text">Finomic</span>
+        </a>
+      </h2>
+      <nav>
+        <ul>
+          <li><a href="/dashboard">Сводка</a></li>
+          <li><a href="/analytics">Аналитика</a></li>
+          <li><a href="/input">Операции</a></li>
+          <li><a href="/settings">Настройки</a></li>
+          <li><a href="/">Создатели</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Добавить операцию</h1>
+      </header>
+
+      <section class="form-section">
+        <form id="transaction-form" class="transaction-form">
+          <label>
+            Сумма (₽):
+            <input type="number" id="amount" placeholder="Введите сумму" required min="0.01" step="0.01" />
+          </label>
+
+          <label>
+            Вид финансовой операции:
+            <select id="type" required>
+              <option value="">Выберите вид финансовой операции</option>
+              <option value="INCOME">Доход</option>
+              <option value="EXPENSE">Расход</option>
+            </select>
+          </label>
+
+          <label>
+            Дата:
+            <input type="date" id="date" required />
+          </label>
+
+          <label>
+            Категория:
+            <select id="category" required>
+              <option value="">Выберите категорию</option>
+            </select>
+          </label>
+
+          <label>
+            Комментарий:
+            <input type="text" id="description" placeholder="Описание или заметка" />
+          </label>
+
+          <button type="submit">Добавить</button>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="../static/dynamic/input.js"></script>
+  <footer class="mobile-footer">
+    <a href="/dashboard" class="footer-link"><img src="../static/images/dashboard.svg"/><br><span>Сводка</span></a>
+    <a href="/analytics" class="footer-link"><img src="../static/images/analytics.svg"/><br><span>Аналитика</span></a>
+    <a href="/input" class="footer-link"><img src="../static/images/input.svg"/><br><span>Добавить</span></a>
+    <a href="/settings" class="footer-link"><img src="../static/images/settings.svg"/><br><span>Настройки</span></a>
+    <a href="/" class="footer-link"><img src="../static/images/index.svg"/><br><span>Главная</span></a>
+  </footer>
+</body>
+</html>

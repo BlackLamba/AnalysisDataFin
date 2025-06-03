@@ -285,3 +285,12 @@ class TransactionRepository:
             return result.scalar_one_or_none()
         except SQLAlchemyError as e:
             raise e
+
+    async def get_all_for_user(self, user_id: UUID4) -> List[Transaction]:
+        try:
+            result = await self.db.execute(
+                select(Transaction).where(Transaction.UserID == user_id).order_by(Transaction.TransactionDate.desc())
+            )
+            return result.scalars().all()
+        except SQLAlchemyError as e:
+            raise e

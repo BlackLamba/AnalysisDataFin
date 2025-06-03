@@ -1,11 +1,16 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.schemas.category_schema import CategoryCreate, Category
 from app.services.category_service import CategoryService
 from app.db.session import get_db
 from .base_endpoint import BaseRouter
 
+from typing import List
+from app.schemas.category_schema import Category as CategorySchema
+
 router = BaseRouter(prefix="/categories", tags=["categories"]).router
+
 
 @router.post("", response_model=Category, status_code=status.HTTP_201_CREATED)
 async def create_category(
@@ -14,6 +19,7 @@ async def create_category(
 ):
     service = CategoryService(db)
     return await service.create(category_data=category_data)
+
 
 @router.get("/{category_id}", response_model=Category)
 async def read_category(
@@ -25,3 +31,8 @@ async def read_category(
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     return category
+
+@router.get("", response_model=List[CategorySchema])
+async def list_categories(db: AsyncSession = Depends(get_db)):
+    service = CategoryService(db)
+    return await service.get_all()

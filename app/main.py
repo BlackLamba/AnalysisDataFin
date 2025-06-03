@@ -1,9 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.templating import Jinja2Templates
+
 from app.core.config import settings
 from app.api import api_router
 from app.core.database import engine, Base, init_db, close_db
 import logging
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app import models
 
 logger = logging.getLogger(__name__)
@@ -33,6 +38,37 @@ def create_application() -> FastAPI:
         api_router,
         prefix=settings.API_PREFIX
     )
+
+    # Путь до клиентской папки
+    client_path = Path(__file__).resolve().parent / "client"
+    app.mount("/static", StaticFiles(directory=client_path, html=False), name="static")
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(client_path / "html" / "index.html")
+
+    @app.get("/login")
+    async def serve_login():
+        return FileResponse(client_path / "html" / "login.html")
+
+    @app.get("/register")
+    async def serve_register():
+        return FileResponse(client_path / "html" / "register.html")
+
+    @app.get("/dashboard")
+    async def serve_dashboard():
+        return FileResponse(client_path / "html" / "dashboard.html")
+
+    @app.get("/analytics")
+    async def serve_analytics():
+        return FileResponse(client_path / "html" / "analytics.html")
+
+    @app.get("/input")
+    async def serve_input():
+        return FileResponse(client_path / "html" / "input.html")
+
+    @app.get("/settings")
+    async def serve_settings():
+        return FileResponse(client_path / "html" / "settings.html")
 
     # События жизненного цикла
     @app.on_event("startup")

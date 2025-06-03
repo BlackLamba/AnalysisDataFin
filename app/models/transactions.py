@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from app.models.base import Base
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlalchemy.sql import func
 
 
 class Transaction(Base):
@@ -14,7 +16,7 @@ class Transaction(Base):
     CategoryID = Column(UUID(as_uuid=True), ForeignKey("categories.CategoryID"), nullable=False, index=True)
     Amount = Column(Numeric(15, 2), nullable=False)
     Description = Column(String(255))
-    TransactionDate = Column(DateTime, server_default="now()")
+    TransactionDate = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     # Связи
     user = relationship("User", back_populates="transactions")
