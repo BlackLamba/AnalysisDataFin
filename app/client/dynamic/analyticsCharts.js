@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function fetchAndRenderAnalytics(date, period, type) {
   const token = localStorage.getItem("access_token");
-  type = type || "EXPENSE";
 
   if (!date) {
     console.error("Необходимо указать дату");
@@ -39,34 +38,19 @@ async function fetchAndRenderAnalytics(date, period, type) {
   }
 
   try {
-    const overviewUrl = `/api/v1/transactions/stats/${period}?date=${date}&type=${type}`;
+    // 1) Запрос общей статистики (доходы + расходы)
+    const overviewUrl = `/api/v1/transactions/stats/${period}?date=${date}&type=${type || 'EXPENSE'}`;
     const overviewRes = await fetch(overviewUrl, {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       }
     });
-
-    if (!overviewRes.ok) {
-      throw new Error(`Ошибка HTTP: ${overviewRes.status}`);
-    }
+    if (!overviewRes.ok) throw new Error(`Ошибка HTTP: ${overviewRes.status}`);
     const overviewRaw = await overviewRes.json();
 
-    const categoriesUrl = `/api/v1/transactions/categories/${type}/${period}?date=${date}`;
-    const categoriesRes = await fetch(categoriesUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    if (!categoriesRes.ok) {
-      throw new Error(`Ошибка HTTP: ${categoriesRes.status}`);
-    }
-    const categoryData = await categoriesRes.json();
-
+    // Трансформация данных для графиков
     let transformedOverviewData = { labels: [], income: [], expense: [] };
-
     if (period === "day") {
       overviewRaw.data.forEach(item => {
         transformedOverviewData.labels.push(`${item.transaction_period}:00`);
@@ -82,14 +66,44 @@ async function fetchAndRenderAnalytics(date, period, type) {
       transformedOverviewData = transformStatsData(overviewRaw, period);
     }
 
+    // 2) Запрос категорий расходов и доходов отдельно
+    const [expenseRes, incomeRes] = await Promise.all([
+      fetch(`/api/v1/transactions/categories/EXPENSE/${period}?date=${date}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      }),
+      fetch(`/api/v1/transactions/categories/INCOME/${period}?date=${date}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      }),
+    ]);
+
+    if (!expenseRes.ok || !incomeRes.ok) {
+      throw new Error(`Ошибка HTTP при загрузке категорий: ${expenseRes.status}, ${incomeRes.status}`);
+    }
+
+    const expenseData = await expenseRes.json();
+    const incomeData = await incomeRes.json();
+
+    // Объединяем категории с указанием типа
+    const allCategories = [
+      ...expenseData.data.map(item => ({ ...item, category_type: "EXPENSE" })),
+      ...incomeData.data.map(item => ({ ...item, category_type: "INCOME" }))
+    ];
+
+    // Передаем все данные в функции отрисовки
     renderLineChart(
       transformedOverviewData.labels,
       transformedOverviewData.income,
       transformedOverviewData.expense
     );
     renderBarChart(transformedOverviewData);
-    renderPieChart(categoryData);
-    renderCategoryBarChart(categoryData);
+    renderPieChart({ data: allCategories });
+    renderCategoryBarChart({ data: allCategories });
 
   } catch (error) {
     console.error("Ошибка при загрузке аналитики:", error);
@@ -243,7 +257,10 @@ function renderPieChart(data) {
   const ctx = document.getElementById("categoryPieChart").getContext("2d");
   const categories = data?.data || [];
 
-  const labels = categories.map(item => item.category_name);
+  // Метки с указанием расход или доход
+  const labels = categories.map(item =>
+    `${item.category_name} (${item.category_type === "INCOME" ? "доход" : "расход"})`
+  );
   const values = categories.map(item => item.total_amount);
   const colors = ["#34d399", "#60a5fa", "#f87171", "#facc15", "#a78bfa", "#f472b6", "#818cf8"];
 
@@ -270,7 +287,9 @@ function renderCategoryBarChart(data) {
   const ctx = document.getElementById("categoryBarChart").getContext("2d");
   const categories = data?.data || [];
 
-  const labels = categories.map(item => item.category_name);
+  const labels = categories.map(item =>
+    `${item.category_name} (${item.category_type === "INCOME" ? "доход" : "расход"})`
+  );
   const values = categories.map(item => item.total_amount);
   const colors = ["#34d399", "#60a5fa", "#f87171", "#facc15", "#a78bfa", "#f472b6", "#818cf8"];
 
@@ -281,7 +300,7 @@ function renderCategoryBarChart(data) {
     data: {
       labels,
       datasets: [{
-        label: "Расходы по категориям",
+        label: "Расходы и доходы по категориям",
         data: values,
         backgroundColor: colors.slice(0, values.length),
         borderWidth: 1

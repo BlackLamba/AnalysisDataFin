@@ -6,32 +6,63 @@ async function exportAnalyticsToPDF() {
     const pageWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
     let yPosition = margin;
 
-    // Собираем все блоки графиков для экспорта
     const graphSections = document.querySelectorAll('.graph');
 
-    // Рендерим каждый блок графика с его заголовком
     for (const section of graphSections) {
-      // Пропускаем кнопку экспорта
       if (section.querySelector('#exportPdfBtn')) continue;
 
-      // Рендерим весь блок графика как изображение
-      const canvas = await html2canvas(section, {
+      // Клонируем секцию
+      const clone = section.cloneNode(true);
+
+      // Копируем содержимое canvas из оригинала в клон
+      const originalCanvases = section.querySelectorAll('canvas');
+      const cloneCanvases = clone.querySelectorAll('canvas');
+
+      for (let i = 0; i < originalCanvases.length; i++) {
+        const originalCanvas = originalCanvases[i];
+        const cloneCanvas = cloneCanvases[i];
+        if (!cloneCanvas) continue;
+
+        const dataURL = originalCanvas.toDataURL();
+
+        const ctx = cloneCanvas.getContext('2d');
+        const img = new Image();
+        await new Promise(resolve => {
+          img.onload = () => {
+            ctx.clearRect(0, 0, cloneCanvas.width, cloneCanvas.height);
+            ctx.drawImage(img, 0, 0);
+            resolve();
+          };
+          img.src = dataURL;
+        });
+      }
+
+      // Изменяем цвет заголовков в клоне
+      clone.querySelectorAll('h2, h3').forEach(h => {
+        h.style.color = '#111'; // Можно заменить на нужный цвет
+      });
+
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.backgroundColor = '#fff';
+      document.body.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {
         scale: 2,
         logging: false,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        ignoreElements: (element) => {
-          // Игнорируем кнопку экспорта, если она есть в блоке
-          return element.id === 'exportPdfBtn';
-        }
+        ignoreElements: el => el.id === 'exportPdfBtn',
       });
+
+      document.body.removeChild(clone);
 
       const imgData = canvas.toDataURL('image/png');
       const imgProps = pdf.getImageProperties(imgData);
       const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
 
-      // Проверяем, помещается ли изображение на страницу
       if (yPosition + pdfHeight > pdf.internal.pageSize.getHeight() - margin) {
         pdf.addPage();
         yPosition = margin;
@@ -53,7 +84,6 @@ async function exportAnalyticsToPDF() {
 document.addEventListener('DOMContentLoaded', function() {
   let exportBtn = document.getElementById('exportPdfBtn');
   if (exportBtn) {
-    // Заменяем кнопку на её клон, чтобы очистить все старые обработчики
     const newExportBtn = exportBtn.cloneNode(true);
     exportBtn.parentNode.replaceChild(newExportBtn, exportBtn);
     exportBtn = newExportBtn;
