@@ -19,7 +19,10 @@ async function fetchCurrentMonthStats() {
   const data = await res.json();
 
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+  const labels = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = new Date(now.getFullYear(), now.getMonth(), i + 1);
+      return day.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }); // например: 01.06.2025
+  });
   const incomeData = Array(daysInMonth).fill(0);
   const expenseData = Array(daysInMonth).fill(0);
 
@@ -119,7 +122,7 @@ function renderChart(labels, incomeData, expenseData, periodLabel) {
       plugins: {
         title: {
           display: true,
-          text: `Статистика за период: ${periodLabel}`
+          text: `Линейный график доходов и расходов`
         },
         tooltip: {
           mode: 'index',
@@ -137,7 +140,17 @@ function renderChart(labels, incomeData, expenseData, periodLabel) {
       },
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+            title: {
+            display: true,
+            text: 'Сумма (₽)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'День месяца'
+          }
         }
       }
     }
@@ -174,7 +187,7 @@ function renderHistogramChart(labels, incomeData, expenseData) {
       plugins: {
         title: {
           display: true,
-          text: 'Гистограмма доходов и расходов и доходов'
+          text: 'Гистограмма доходов и расходов'
         },
         tooltip: {
           mode: 'index',

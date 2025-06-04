@@ -190,6 +190,11 @@ function renderLineChart(labels, income, expense) {
           grid: { color: "#2a2a2a" }
         },
         y: {
+        beginAtZero: true,
+        title: {
+            display: true,
+            text: 'Сумма (₽)'
+         },
           ticks: { color: "#9ca3af" },
           grid: { color: "#2a2a2a" }
         }
@@ -241,10 +246,14 @@ function renderBarChart(data) {
         },
         y: {
           beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Сумма (₽)'
+          },
           ticks: {
             stepSize: 5000,
             color: "#9ca3af",
-            callback: value => `₽${value}`
+            callback: value => value
           },
           grid: { color: "#2a2a2a" }
         }
