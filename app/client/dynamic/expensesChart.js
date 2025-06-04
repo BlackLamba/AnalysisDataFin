@@ -72,6 +72,7 @@ async function fetchCurrentMonthStats() {
     expenseData,
     data.period || `Месяц: ${now.toLocaleString('ru-RU', { month: 'long', year: 'numeric' })}`
   );
+  renderHistogramChart(labels, incomeData, expenseData);
 }
 
 function renderChart(labels, incomeData, expenseData, periodLabel) {
@@ -142,6 +143,66 @@ function renderChart(labels, incomeData, expenseData, periodLabel) {
     }
   });
 }
+
+function renderHistogramChart(labels, incomeData, expenseData) {
+  const ctx = document.getElementById('histogramChart')?.getContext('2d');
+  if (!ctx) return;
+
+  if (window.histogramChartInstance) {
+    window.histogramChartInstance.destroy();
+  }
+
+  window.histogramChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Доходы',
+          data: incomeData,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)'
+        },
+        {
+          label: 'Расходы',
+          data: expenseData,
+          backgroundColor: 'rgba(255, 99, 132, 0.6)'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Гистограмма доходов и расходов и доходов'
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        },
+        legend: {
+          position: 'top'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Сумма (₽)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'День месяца'
+          }
+        }
+      }
+    }
+  });
+}
+
 
 async function fetchCurrentMonthReport() {
   const now = new Date();

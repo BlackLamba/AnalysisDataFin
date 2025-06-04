@@ -383,6 +383,7 @@ select::-ms-expand {
 }
 
 
+
 /* ===== Мобильная адаптация ===== */
 @media (max-width: 768px) {
   body {
