@@ -11,43 +11,8 @@ async function exportDashboardToPDF() {
     for (const block of exportBlocks) {
       if (block.querySelector('#exportPdfBtn')) continue;
 
-      const clone = block.cloneNode(true);
-
-      // Копируем содержимое canvas из оригинала в клон
-      const originalCanvases = block.querySelectorAll('canvas');
-      const cloneCanvases = clone.querySelectorAll('canvas');
-
-      for (let i = 0; i < originalCanvases.length; i++) {
-        const originalCanvas = originalCanvases[i];
-        const cloneCanvas = cloneCanvases[i];
-        if (!cloneCanvas) continue;
-
-        const dataURL = originalCanvas.toDataURL();
-
-        const ctx = cloneCanvas.getContext('2d');
-        const img = new Image();
-        await new Promise(resolve => {
-          img.onload = () => {
-            ctx.clearRect(0, 0, cloneCanvas.width, cloneCanvas.height);
-            ctx.drawImage(img, 0, 0);
-            resolve();
-          };
-          img.src = dataURL;
-        });
-      }
-
-      // Меняем цвет заголовков в клоне
-      clone.querySelectorAll('h2, h3').forEach(h => {
-        h.style.color = '#111';
-      });
-
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      clone.style.backgroundColor = '#fff';
-      document.body.appendChild(clone);
-
-      const canvas = await html2canvas(clone, {
+      // Рендерим оригинальный элемент напрямую
+      const canvas = await html2canvas(block, {
         scale: 2,
         logging: false,
         useCORS: true,
@@ -55,8 +20,6 @@ async function exportDashboardToPDF() {
         backgroundColor: '#ffffff',
         ignoreElements: el => el.id === 'exportPdfBtn',
       });
-
-      document.body.removeChild(clone);
 
       const imgData = canvas.toDataURL('image/png');
       const imgProps = pdf.getImageProperties(imgData);
@@ -77,7 +40,6 @@ async function exportDashboardToPDF() {
     alert('Ошибка при создании отчёта: ' + error.message);
   }
 }
-
 
 // 👉 ВРЕМЕННО применить стили и вернуть старые
 function applyTemporaryHeadingStyles() {
