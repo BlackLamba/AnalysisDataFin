@@ -104,6 +104,7 @@ async function fetchAndRenderAnalytics(date, period, type) {
     renderBarChart(transformedOverviewData);
     renderPieChart({ data: allCategories });
     renderCategoryBarChart({ data: allCategories });
+    renderSeparateCategoryBarChart({ data: allCategories });
 
   } catch (error) {
     console.error("Ошибка при загрузке аналитики:", error);
@@ -165,16 +166,16 @@ function renderLineChart(labels, income, expense) {
         {
           label: "Доходы",
           data: income,
-          borderColor: "#60a5fa",
-          backgroundColor: "rgba(96, 165, 250, 0.2)",
+          borderColor: 'rgba(54, 162, 235, 0.8)',
+          backgroundColor: 'rgba(54, 162, 235, 0.3)',
           tension: 0.3,
           pointBackgroundColor: "#60a5fa"
         },
         {
           label: "Расходы",
           data: expense,
-          borderColor: "#f87171",
-          backgroundColor: "rgba(248, 113, 113, 0.2)",
+          borderColor: 'rgba(255, 99, 132, 0.8)',
+          backgroundColor: 'rgba(255, 99, 132, 0.3)',
           tension: 0.3,
           pointBackgroundColor: "#f87171"
         }
@@ -330,6 +331,59 @@ function renderCategoryBarChart(data) {
         },
         y: {
           ticks: { color: "#f0f0f0" }
+        }
+      }
+    }
+  });
+}
+
+function renderSeparateCategoryBarChart(data) {
+  const ctx = document.getElementById("separateCategoryBarChart").getContext("2d");
+  const categories = data?.data || [];
+
+  const incomeCategories = categories.filter(item => item.category_type === "INCOME");
+  const expenseCategories = categories.filter(item => item.category_type === "EXPENSE");
+
+  const incomeLabels = incomeCategories.map(item => item.category_name);
+  const incomeValues = incomeCategories.map(item => item.total_amount);
+
+  const expenseLabels = expenseCategories.map(item => item.category_name);
+  const expenseValues = expenseCategories.map(item => item.total_amount);
+
+  if (window.separateCategoryBarChartInstance) window.separateCategoryBarChartInstance.destroy();
+
+  window.separateCategoryBarChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: [...incomeLabels, ...expenseLabels],
+      datasets: [{
+        label: "Доходы",
+        data: [...incomeValues, ...Array(expenseValues.length).fill(null)],
+        backgroundColor: "#60a5fa"
+      }, {
+        label: "Расходы",
+        data: [...Array(incomeValues.length).fill(null), ...expenseValues],
+        backgroundColor: "#f87171"
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: "#f0f0f0" } }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#9ca3af" },
+          grid: { color: "#2a2a2a" }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: "#9ca3af" },
+          grid: { color: "#2a2a2a" },
+          title: {
+            display: true,
+            text: 'Сумма (₽)'
+          }
         }
       }
     }

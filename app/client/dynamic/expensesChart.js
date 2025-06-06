@@ -1,3 +1,66 @@
+// Полезные функции для статистики
+function standardDeviation(arr) {
+  const n = arr.length;
+  if (n === 0) return 0;
+  const mean = arr.reduce((a, b) => a + b, 0) / n;
+  const variance = arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n;
+  return Math.sqrt(variance);
+}
+
+function coefficientOfVariation(arr) {
+  const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+  return mean === 0 ? 0 : (standardDeviation(arr) / mean) * 100;
+}
+
+function cumulativeSum(arr) {
+  return arr.reduce((acc, val) => acc + val, 0);
+}
+
+function buildGroupedIntervals(data, step = 10000) {
+  const grouped = new Map();
+
+  data.forEach(value => {
+    if (value <= 0) return; // пропускаем нули и отрицательные
+    const intervalMin = Math.floor(value / step) * step;
+    const intervalMax = intervalMin + step;
+    const key = `${intervalMin}-${intervalMax}`;
+
+    if (!grouped.has(key)) {
+      grouped.set(key, { min: intervalMin, max: intervalMax, freq: 0 });
+    }
+    grouped.get(key).freq += 1;
+  });
+
+  // Сортировка по min
+  return Array.from(grouped.values()).sort((a, b) => a.min - b.min);
+}
+
+function medianGrouped(intervals) {
+  const total = intervals.reduce((sum, i) => sum + i.freq, 0);
+  const half = total / 2;
+
+  let cumulative = 0;
+  let medianInterval = null;
+  let F = 0;
+
+  for (let i = 0; i < intervals.length; i++) {
+    const curr = intervals[i];
+    if (cumulative + curr.freq >= half) {
+      medianInterval = curr;
+      F = cumulative;
+      break;
+    }
+    cumulative += curr.freq;
+  }
+
+  if (!medianInterval) return null;
+
+  const { min: L, max, freq: f } = medianInterval;
+  const h = max - L;
+
+  return L + ((half - F) / f) * h;
+}
+
 async function fetchCurrentMonthStats() {
   const now = new Date();
   const dateParam = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-01`;
@@ -26,6 +89,7 @@ async function fetchCurrentMonthStats() {
   const incomeData = Array(daysInMonth).fill(0);
   const expenseData = Array(daysInMonth).fill(0);
 
+
   data.data.forEach(item => {
     const dayIndex = new Date(item.transaction_period).getDate() - 1;
     if (dayIndex >= 0 && dayIndex < daysInMonth) {
@@ -39,6 +103,24 @@ async function fetchCurrentMonthStats() {
 
   const totalIncome = incomeData.reduce((acc, val) => acc + val, 0);
   const totalExpense = expenseData.reduce((acc, val) => acc + val, 0);
+
+  // Вычисляем min/max
+  const maxIncome = Math.max(...incomeData);
+  const minIncome = Math.min(...incomeData.filter(v => v > 0));
+  const maxExpense = Math.max(...expenseData);
+  const minExpense = Math.min(...expenseData.filter(v => v > 0));
+
+  // Форматирование
+  const format = val =>
+    val != null && isFinite(val)
+      ? `₽ ${val.toLocaleString('ru-RU', { minimumFractionDigits: 2 })}`
+      : '–';
+
+  // Обновляем DOM
+  document.getElementById('maxIncome').textContent = format(maxIncome);
+  document.getElementById('minIncome').textContent = format(minIncome);
+  document.getElementById('maxExpense').textContent = format(maxExpense);
+  document.getElementById('minExpense').textContent = format(minExpense);
 
   let profitabilityText = '–';
   let profitabilityColor = 'black';
@@ -76,6 +158,40 @@ async function fetchCurrentMonthStats() {
     data.period || `Месяц: ${now.toLocaleString('ru-RU', { month: 'long', year: 'numeric' })}`
   );
   renderHistogramChart(labels, incomeData, expenseData);
+
+
+  // Дополнительные статистики
+  document.getElementById('stdIncome').textContent = standardDeviation(incomeData).toFixed(2);
+  document.getElementById('stdExpense').textContent = standardDeviation(expenseData).toFixed(2);
+  const cvIncomeValue = coefficientOfVariation(incomeData);
+  const cvExpenseValue = coefficientOfVariation(expenseData);
+
+  const cvIncomeElem = document.getElementById('cvIncome');
+  const cvExpenseElem = document.getElementById('cvExpense');
+
+  const cvThreshold = 30; // порог для красного цвета
+
+  cvIncomeElem.textContent = cvIncomeValue.toFixed(2) + '%';
+  cvExpenseElem.textContent = cvExpenseValue.toFixed(2) + '%';
+
+  cvIncomeElem.style.color = cvIncomeValue > cvThreshold ? 'red' : 'black';
+  cvExpenseElem.style.color = cvExpenseValue > cvThreshold ? 'red' : 'black';
+
+  const groupedIncome = buildGroupedIntervals(incomeData, 10000);
+  const groupedExpense = buildGroupedIntervals(expenseData, 10000);
+
+  const medianIncomeGrouped = medianGrouped(groupedIncome);
+  const medianExpenseGrouped = medianGrouped(groupedExpense);
+
+  document.getElementById('groupedMedianIncome').textContent =
+    isNaN(medianIncomeGrouped) ? '–' : `₽ ${medianIncomeGrouped.toFixed(2)}`;
+
+  document.getElementById('groupedMedianExpense').textContent =
+    isNaN(medianExpenseGrouped) ? '–' : `₽ ${medianExpenseGrouped.toFixed(2)}`;
+  console.table(groupedIncome);
+
+  document.getElementById('countIncome').textContent = countNonZero(incomeData);
+  document.getElementById('countExpense').textContent = countNonZero(expenseData);
 }
 
 function renderChart(labels, incomeData, expenseData, periodLabel) {
@@ -102,8 +218,9 @@ function renderChart(labels, incomeData, expenseData, periodLabel) {
           data: incomeData,
           fill: false,
           tension: 0.3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          pointRadius: 3,
+          pointHoverRadius: 4,
+          pointBackgroundColor: "#60a5fa"
         },
         {
           label: 'Расходы',
@@ -112,8 +229,9 @@ function renderChart(labels, incomeData, expenseData, periodLabel) {
           data: expenseData,
           fill: false,
           tension: 0.3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          pointRadius: 3,
+          pointHoverRadius: 4,
+          pointBackgroundColor: "#f87171"
         }
       ]
     },
@@ -173,12 +291,22 @@ function renderHistogramChart(labels, incomeData, expenseData) {
         {
           label: 'Доходы',
           data: incomeData,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)'
+          backgroundColor: 'rgba(54, 162, 235, 0.3)',
+          borderColor: 'rgba(54, 162, 235, 0.8)',
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 1,
+          categoryPercentage: 1
         },
         {
           label: 'Расходы',
           data: expenseData,
-          backgroundColor: 'rgba(255, 99, 132, 0.6)'
+          backgroundColor: 'rgba(255, 99, 132, 0.3)',
+          borderColor: 'rgba(255, 99, 132, 0.8)',
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 1,
+          categoryPercentage: 1
         }
       ]
     },
@@ -216,7 +344,6 @@ function renderHistogramChart(labels, incomeData, expenseData) {
   });
 }
 
-
 async function fetchCurrentMonthReport() {
   const now = new Date();
   const dateParam = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-01`;
@@ -250,5 +377,7 @@ async function fetchCurrentMonthReport() {
 }
 
 // Запуск функций при загрузке
-fetchCurrentMonthStats();
-fetchCurrentMonthReport();
+window.addEventListener('DOMContentLoaded', () => {
+  fetchCurrentMonthStats();
+  fetchCurrentMonthReport();
+});
